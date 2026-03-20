@@ -29,4 +29,5 @@ tzdata==2025.3
 urllib3==2.2.3
 virtualenv==20.36.1
 websocket-client==1.8.0
+whitenoise==6.7.0
 wsproto==1.2.0

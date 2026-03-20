@@ -1,0 +1,105 @@
+/* ============================= */
+/* GENERAL BODY & CONTAINER */
+/* ============================= */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+/* ============================= */
+/* CARDS */
+/* ============================= */
+.card {
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+/* ============================= */
+/* TABLES */
+/* ============================= */
+.table-hover tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+.table-dark th {
+    background-color: #343a40 !important;
+    color: #fff;
+}
+
+/* ============================= */
+/* BUTTONS */
+/* ============================= */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* ============================= */
+/* CHAT BOX */
+/* ============================= */
+#chat-box {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background-color: #fff;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.chat-self {
+    background-color: #d1ffd1;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    text-align: right;
+}
+
+.chat-other {
+    background-color: #f1f1f1;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    text-align: left;
+}
+
+/* ============================= */
+/* FORM INPUTS */
+/* ============================= */
+input.form-control, textarea.form-control, select.form-select {
+    border-radius: 5px;
+}
+
+/* ============================= */
+/* HEADINGS */
+/* ============================= */
+h2, h4, h5 {
+    margin-bottom: 20px;
+}
+
+/* ============================= */
+/* PAGINATION */
+/* ============================= */
+.btn-outline-primary {
+    border-radius: 5px;
+    margin: 0 2px;
+}
