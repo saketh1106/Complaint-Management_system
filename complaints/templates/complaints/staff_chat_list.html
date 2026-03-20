@@ -1,0 +1,250 @@
+{% extends "complaints/base_staff.html" %}
+{% block dashboard_content %}
+{% load static %}
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary-blue: #4318FF;
+        --bg-shade: #f4f7fe;
+        --text-main: #1B2559;
+    }
+
+    /* Main Container with Floating Effect */
+    .staff-chat-container {
+        display: flex;
+        width: 100%;
+        height: 85vh;
+        background: #fff;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 40px 80px rgba(0,0,0,0.06);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* --- SIDEBAR --- */
+    .chat-sidebar {
+        width: 380px;
+        border-right: 1px solid #edf2f7;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+    }
+
+    .sidebar-header { padding: 30px 25px; border-bottom: 1px solid #f8fafc; }
+
+    .search-wrapper { position: relative; margin-top: 15px; }
+    .search-wrapper i {
+        position: absolute; left: 15px; top: 50%;
+        transform: translateY(-50%); color: #A3AED0;
+    }
+
+    .sidebar-search-input {
+        width: 100%; padding: 12px 15px 12px 45px;
+        border-radius: 14px; border: none; background: #F4F7FE;
+        font-size: 0.9rem; outline: none; transition: 0.3s;
+    }
+    .sidebar-search-input:focus { background: #fff; box-shadow: 0 0 0 2px var(--primary-blue); }
+
+    .chat-list { flex: 1; overflow-y: auto; }
+
+    .chat-card {
+        padding: 20px 25px; display: flex; align-items: center; gap: 15px;
+        text-decoration: none; border-bottom: 1px solid #f8fafc; transition: 0.2s;
+    }
+    .chat-card:hover { background: #f8fafc; }
+    .chat-card.active { background: #F4F7FE; border-right: 4px solid var(--primary-blue); }
+
+    .user-avatar {
+        width: 50px; height: 50px; background: #E9EDF7; border-radius: 15px;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; color: var(--primary-blue);
+    }
+
+    .user-name { font-weight: 700; color: var(--text-main); font-size: 1rem; }
+    .ticket-id { font-size: 0.8rem; color: #A3AED0; font-weight: 600; }
+
+    /* Badges */
+    .status-badge { font-size: 0.7rem; padding: 3px 10px; border-radius: 8px; font-weight: 600; }
+    .active-badge { background: #DCFCE7; color: #16A34A; }
+    .resolved-badge { background: #FEE2E2; color: #DC2626; }
+
+    /* --- MAIN CHAT AREA --- */
+    .chat-main-view {
+        flex: 1; display: flex; flex-direction: column; background: #F4F7FE;
+    }
+
+    .chat-header {
+        padding: 20px 40px; background: rgba(255,255,255,0.9);
+        backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.05);
+        display: flex; align-items: center; gap: 15px;
+    }
+
+    .chat-messages {
+        flex: 1; padding: 30px 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
+        background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+        background-blend-mode: overlay;
+    }
+
+    /* Glassmorphism Bubbles */
+    .bubble {
+        max-width: 65%; padding: 12px 18px; font-size: 0.95rem; position: relative;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03); border-radius: 18px;
+    }
+    .bubble.sent { background: var(--primary-blue); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .bubble.received { background: #fff; color: var(--text-main); align-self: flex-start; border-bottom-left-radius: 4px; }
+
+    .msg-sender { font-size: 0.7rem; font-weight: 700; display: block; margin-bottom: 4px; }
+    .msg-time { font-size: 0.65rem; opacity: 0.7; display: block; text-align: right; margin-top: 5px; }
+
+    /* --- INPUT AREA --- */
+    .chat-input-area {
+        padding: 20px 40px; background: #fff; display: flex; align-items: center; gap: 15px;
+    }
+    .input-pill {
+        flex: 1; background: #F4F7FE; border-radius: 15px; padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+    }
+    .input-pill input[type="text"] { flex: 1; border: none; background: transparent; outline: none; }
+    
+    .btn-send-pro {
+        background: var(--primary-blue); color: #fff; border: none;
+        width: 50px; height: 50px; border-radius: 15px;
+        display: flex; align-items: center; justify-content: center; transition: 0.3s;
+    }
+    .btn-send-pro:hover { transform: scale(1.05); }
+
+</style>
+
+<div class="staff-chat-container">
+
+    <div class="chat-sidebar">
+        <div class="sidebar-header">
+            <h4 style="color: var(--text-main); font-weight: 700;">User Chats</h4>
+            <div class="search-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" id="userSearch" class="sidebar-search-input" 
+                       placeholder="Search name, title, or #ID..." onkeyup="filterUserChats()">
+            </div>
+        </div>
+
+        <div class="chat-list" id="chatList">
+            {% for complaint in user_chats %}
+                <a href="?complaint_id={{ complaint.id }}" 
+                   class="chat-card {% if selected_complaint.id == complaint.id %}active{% endif %}"
+                   data-search="{{ complaint.user.username|lower }} {{ complaint.title|lower }} #{{ complaint.id }}"
+                   {% if not complaint.is_chat_active %}style="opacity:0.7;"{% endif %}>
+
+                    <div class="user-avatar">
+                        {{ complaint.user.username|slice:":1"|upper }}
+                    </div>
+
+                    <div class="chat-info">
+                        <div>
+                            <span class="user-name">{{ complaint.user.username }}</span>
+                            {% if complaint.is_chat_active %}
+                                <span class="status-badge active-badge">Active</span>
+                            {% else %}
+                                <span class="status-badge resolved-badge">Resolved</span>
+                            {% endif %}
+                        </div>
+                        <div class="ticket-id">#{{ complaint.id }} • {{ complaint.title|truncatechars:20 }}</div>
+                    </div>
+                </a>
+            {% empty %}
+                <p style="padding:25px; text-align:center; color:#A3AED0;">No assigned chats.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="chat-main-view">
+        {% if selected_complaint %}
+            <div class="chat-header">
+                <div class="user-avatar" style="width: 40px; height: 40px; font-size: 0.9rem;">
+                    {{ selected_complaint.user.username|slice:":1"|upper }}
+                </div>
+                <div>
+                    <h6 class="fw-bold m-0" style="color: var(--text-main);">{{ selected_complaint.title }} (#{{ selected_complaint.id }})</h6>
+                    <small class="text-muted">Customer: {{ selected_complaint.user.username }}</small>
+                </div>
+            </div>
+
+            {% if not selected_complaint.is_chat_active %}
+                <div style="padding:10px; text-align:center; color:#DC2626; font-weight:bold; background: #FEE2E2;">
+                    🔒 This complaint is resolved. Chat is disabled.
+                </div>
+            {% endif %}
+
+            <div class="chat-messages" id="messagePane">
+                {% for msg in messages %}
+                    <div class="bubble {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
+                        {% if msg.sender != request.user %}
+                            <span class="msg-sender" style="color: var(--primary-blue);">{{ msg.sender.username }}</span>
+                        {% endif %}
+                        
+                        {{ msg.content }}
+
+                        {% if msg.file %}
+                            <div style="margin-top:8px; padding-top:8px; border-top:1px solid rgba(0,0,0,0.05);">
+                                <a href="{{ msg.file.url }}" target="_blank" style="color: inherit; font-size: 0.8rem; text-decoration: none;">
+                                    <i class="fas fa-file-download"></i> View Attachment
+                                </a>
+                            </div>
+                        {% endif %}
+                        <span class="msg-time">{{ msg.timestamp|date:"P" }}</span>
+                    </div>
+                {% empty %}
+                    <div class="text-center mt-5 text-muted">No messages yet.</div>
+                {% endfor %}
+            </div>
+
+            {% if selected_complaint.is_chat_active %}
+                <form method="POST" enctype="multipart/form-data" class="chat-input-area">
+                    {% csrf_token %}
+                    <div class="input-pill">
+                        <input type="text" name="message" placeholder="Type a response..." required>
+                        <input type="file" name="file" id="file-input" style="display:none;">
+                        <label for="file-input" style="cursor:pointer; color: #A3AED0;"><i class="fas fa-paperclip"></i></label>
+                    </div>
+                    <button type="submit" class="btn-send-pro">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            {% else %}
+                <div class="chat-input-area" style="justify-content:center;">
+                    <p style="color:#DC2626; font-weight:700; margin:0;"><i class="fas fa-lock"></i> Chat Closed</p>
+                </div>
+            {% endif %}
+
+        {% else %}
+            <div class="text-center" style="margin: auto;">
+                <i class="fas fa-comments fa-4x mb-3" style="color: #A3AED0; opacity: 0.3;"></i>
+                <h4 style="color: var(--text-main); font-weight: 700;">Select a Chat</h4>
+                <p class="text-muted">Choose a customer conversation to start helping.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Improved search to look at names, titles, and IDs
+    function filterUserChats() {
+        let input = document.getElementById('userSearch').value.toLowerCase();
+        let cards = document.querySelectorAll('.chat-card');
+        
+        cards.forEach(card => {
+            let searchString = card.getAttribute('data-search');
+            if (searchString.includes(input)) {
+                card.style.display = "flex";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    }
+
+    const pane = document.getElementById('messagePane');
+    if (pane) pane.scrollTop = pane.scrollHeight;
+</script>
+
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'complaints/base_admin.html' %}
+
+{% block dashboard_content %}
+<style>
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1000px; margin: 20px auto; }
+    .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .card h2 { color: #1e293b; font-size: 1.25rem; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #475569; }
+    .form-control { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; }
+    .btn { width: 100%; padding: 10px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-primary { background: #4f46e5; color: white; }
+    .btn-success { background: #10b981; color: white; margin-top: 10px; }
+    .errorlist { color: #dc2626; font-size: 0.85rem; padding-left: 20px; }
+    .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 500; }
+    .alert-success { background: #dcfce7; color: #166534; }
+    .alert-error { background: #fee2e2; color: #991b1b; }
+</style>
+
+<div style="padding: 20px;">
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="alert alert-{% if msg.tags == 'error' %}error{% else %}success{% endif %}">{{ msg }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="profile-grid">
+        <div class="card">
+            <h2>General Info</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" class="form-control" value="{{ user.username }}" disabled style="background: #f8fafc;">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                </div>
+                <button type="submit" name="update_profile" class="btn btn-primary">Update Email</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Security Settings</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {% for field in password_form %}
+                    <div class="form-group">
+                        <label>{{ field.label }}</label>
+                        <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}" class="form-control">
+                        {% if field.errors %}<div class="errorlist">{{ field.errors }}</div>{% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" name="change_password" class="btn btn-success">Update Password</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

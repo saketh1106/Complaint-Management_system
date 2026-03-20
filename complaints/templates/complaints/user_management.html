@@ -1,0 +1,274 @@
+{% extends "complaints/base_admin.html" %}
+
+{% block dashboard_content %}
+{% load static %}
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary: #4318FF;
+        --danger: #EF4444;
+        --text-dark: #1B2559;
+        --text-grey: #A3AED0;
+        --bg-subtle: #F4F7FE;
+    }
+
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    /* Layout Reset */
+    #deleteForm { max-width: none !important; width: 100%; background: transparent; padding: 0; box-shadow: none; }
+
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .header-section h2 { font-weight: 800; color: var(--text-dark); margin: 0; }
+
+    .top-buttons { display: flex; gap: 12px; }
+
+    .btn {
+        padding: 12px 22px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .btn-primary { background: var(--primary); color: white; box-shadow: 0 10px 20px rgba(67, 24, 255, 0.15); }
+    .btn-primary:hover { transform: translateY(-2px); background: #3311CC; color: white; }
+
+    .btn-outline-danger { 
+        background: white; 
+        color: var(--danger); 
+        border: 1px solid var(--danger); 
+    }
+    .btn-outline-danger:hover { background: var(--danger); color: white; }
+
+    /* Table Container */
+    .user-card {
+        background: white;
+        border-radius: 24px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    .user-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    
+    .user-table th {
+        padding: 15px 20px;
+        text-align: left;
+        color: var(--text-grey);
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 1px solid #F1F4F9;
+    }
+
+    .user-table td {
+        padding: 18px 20px;
+        vertical-align: middle;
+        border-bottom: 1px solid #F1F4F9;
+        transition: 0.2s;
+    }
+
+    .user-table tr:hover td { background: #F8FAFC; }
+
+    /* Selection Mode Styling */
+    .delete-mode-active td { background: #FFF5F5 !important; border-color: #FED7D7; }
+
+    /* User Branding */
+    .user-identity { display: flex; align-items: center; gap: 15px; }
+    .user-avatar {
+        width: 42px;
+        height: 42px;
+        background: #EEF2FF;
+        color: var(--primary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.1rem;
+    }
+
+    .user-link {
+        font-weight: 700;
+        color: var(--text-dark);
+        text-decoration: none;
+        font-size: 1rem;
+    }
+    .user-link:hover { color: var(--primary); }
+
+    /* Stats Pill */
+    .complaint-pill {
+        background: #F4F7FE;
+        padding: 6px 14px;
+        border-radius: 10px;
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .last-activity {
+        font-size: 0.85rem;
+        color: var(--text-dark);
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    /* Action Bar (Delete Mode) */
+    #confirmDeleteDiv {
+        background: white;
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.08);
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        position: sticky;
+        bottom: 20px;
+        margin-top: 20px;
+        z-index: 100;
+        border: 1px solid #FED7D7;
+    }
+
+    .checkbox-col input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--danger);
+        cursor: pointer;
+    }
+</style>
+
+<div class="header-section">
+    <h2>User Management</h2>
+    <div class="top-buttons">
+        <a href="{% url 'add_user' %}" id="addUserBtn" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New User
+        </a>
+        <button type="button" id="toggleDeleteBtn" class="btn btn-outline-danger">
+            <i class="fas fa-user-minus"></i> Delete User
+        </button>
+    </div>
+</div>
+
+<div class="user-card">
+    <form method="POST" id="deleteForm">
+        {% csrf_token %}
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th class="checkbox-col" style="display:none; width: 50px;">
+                        <input type="checkbox" id="selectAllUsers">
+                    </th>
+                    <th>User Identity</th>
+                    <th>Email Address</th>
+                    <th>Complaints</th>
+                    <th>Recent Activity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in user_stats %}
+                <tr class="user-row">
+                    <td class="checkbox-col" style="display:none;">
+                        <input type="checkbox" name="delete_users" value="{{ user.user.id }}">
+                    </td>
+                    <td>
+                        <div class="user-identity">
+                            <div class="user-avatar">{{ user.user.username|make_list|first|upper }}</div>
+                            <div class="d-flex flex-column">
+                                <a href="{% url 'user_complaints_detail' user.user.id %}" class="user-link">
+                                    {{ user.user.username|title }}
+                                </a>
+                                <small style="color: var(--text-grey);">Member ID: #{{ user.user.id }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight: 500; color: var(--text-dark);">{{ user.user.email }}</td>
+                    <td>
+                        <div class="complaint-pill">
+                            <i class="fas fa-file-invoice"></i>
+                            {{ user.total_complaints }}
+                        </div>
+                    </td>
+                    <td>
+                        {% if user.last_complaint_id %}
+                            <div class="last-activity">
+                                <span style="display: block; color: var(--text-grey); font-size: 0.7rem; text-transform: uppercase;">Last Filed:</span>
+                                <i class="far fa-clock me-1" style="color: var(--primary);"></i>
+                                {{ user.last_complaint_date|date:"M d, Y" }}
+                            </div>
+                        {% else %}
+                            <span style="color: var(--text-grey); font-style: italic; font-size: 0.85rem;">No activity yet</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <i class="fas fa-user-slash d-block mb-3" style="font-size: 3rem; color: var(--text-grey); opacity: 0.2;"></i>
+                        <p style="color: var(--text-grey); font-weight: 600;">No users found in your organization.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="display:none;" id="confirmDeleteDiv">
+            <button type="submit" class="btn" style="background: var(--danger); color: white;" onclick="return confirm('WARNING: This will permanently delete selected users and their complaints. Continue?')">
+                <i class="fas fa-check"></i> Delete Selected Users
+            </button>
+            <button type="button" id="cancelDeleteBtn" class="btn" style="background: var(--bg-subtle); color: var(--text-dark);">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    const toggleDeleteBtn = document.getElementById('toggleDeleteBtn');
+    const addUserBtn = document.getElementById('addUserBtn');
+    const checkboxes = document.querySelectorAll('.checkbox-col');
+    const confirmDeleteDiv = document.getElementById('confirmDeleteDiv');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    const rows = document.querySelectorAll('.user-row');
+    const selectAll = document.getElementById('selectAllUsers');
+
+    toggleDeleteBtn.addEventListener('click', () => {
+        addUserBtn.style.display = 'none';
+        toggleDeleteBtn.style.display = 'none';
+        checkboxes.forEach(cb => cb.style.display = 'table-cell');
+        rows.forEach(row => row.classList.add('delete-mode-active'));
+        confirmDeleteDiv.style.display = 'flex';
+    });
+
+    cancelDeleteBtn.addEventListener('click', () => {
+        addUserBtn.style.display = 'inline-flex';
+        toggleDeleteBtn.style.display = 'inline-flex';
+        checkboxes.forEach(cb => cb.style.display = 'none');
+        rows.forEach(row => row.classList.remove('delete-mode-active'));
+        confirmDeleteDiv.style.display = 'none';
+    });
+
+    selectAll?.addEventListener('change', function() {
+        const boxes = document.querySelectorAll('input[name="delete_users"]');
+        boxes.forEach(cb => cb.checked = this.checked);
+    });
+</script>
+
+{% endblock %}

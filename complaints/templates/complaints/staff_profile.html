@@ -1,0 +1,219 @@
+{% extends 'complaints/base_staff.html' %}
+
+{% block dashboard_content %}
+{% load static %}
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary: #4318FF;
+        --bg-body: #F4F7FE;
+        --text-dark: #1B2559;
+        --text-grey: #A3AED0;
+        --card-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-body); }
+
+    .profile-wrapper { padding: 20px; max-width: 1100px; margin: 0 auto; }
+
+    /* Profile Header Styling */
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        margin-bottom: 40px;
+        background: linear-gradient(90deg, #4318ff 0%, #707eff 100%);
+        padding: 40px;
+        border-radius: 24px;
+        color: white;
+        box-shadow: 0 10px 20px rgba(67, 24, 255, 0.2);
+    }
+
+    .large-avatar {
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.2);
+        border: 4px solid rgba(255, 255, 255, 0.4);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 800;
+        backdrop-filter: blur(5px);
+    }
+
+    /* Grid Layout */
+    .profile-grid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 30px; 
+    }
+
+    .profile-card { 
+        background: white; 
+        padding: 30px; 
+        border-radius: 20px; 
+        box-shadow: var(--card-shadow);
+        transition: 0.3s;
+    }
+
+    .profile-card:hover { transform: translateY(-5px); }
+
+    .profile-card h2 { 
+        font-size: 1.25rem; 
+        font-weight: 700; 
+        color: var(--text-dark); 
+        margin-bottom: 25px; 
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .profile-card h2 i { color: var(--primary); }
+
+    /* Form Elements */
+    .form-group { margin-bottom: 20px; }
+    .form-group label { 
+        display: block; 
+        font-weight: 600; 
+        margin-bottom: 8px; 
+        color: var(--text-dark);
+        font-size: 0.9rem;
+    }
+
+    .form-control { 
+        width: 100%; 
+        padding: 12px 16px; 
+        border: 1px solid #E9EDF7; 
+        border-radius: 12px; 
+        background: #F4F7FE;
+        font-size: 0.95rem;
+        outline: none;
+        transition: 0.3s;
+    }
+
+    .form-control:focus { 
+        border-color: var(--primary); 
+        background: white;
+        box-shadow: 0 0 0 4px rgba(67, 24, 255, 0.05);
+    }
+
+    .form-control:disabled { background: #E9EDF7; cursor: not-allowed; color: var(--text-grey); }
+
+    /* Buttons */
+    .btn-profile { 
+        width: 100%; 
+        padding: 14px; 
+        border-radius: 12px; 
+        cursor: pointer; 
+        font-weight: 700; 
+        border: none; 
+        font-size: 0.95rem;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .btn-blue { background: var(--primary); color: white; }
+    .btn-blue:hover { background: #3311CC; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(67, 24, 255, 0.3); }
+
+    .btn-green { background: #01B574; color: white; }
+    .btn-green:hover { background: #01945F; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(1, 181, 116, 0.3); }
+
+    /* Alerts */
+    .alert { 
+        padding: 15px 20px; 
+        margin-bottom: 25px; 
+        border-radius: 12px; 
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .alert-success { background: #E6FAF5; color: #01B574; border: 1px solid rgba(1, 181, 116, 0.2); }
+    .alert-error { background: #FFF5F5; color: #C53030; border: 1px solid rgba(197, 48, 48, 0.2); }
+
+    @media (max-width: 850px) {
+        .profile-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="profile-wrapper">
+    
+    <div class="profile-header">
+        <div class="large-avatar">
+            {{ user.username|make_list|first|upper }}
+        </div>
+        <div>
+            <h1 style="margin: 0; font-weight: 800; font-size: 1.8rem;">{{ user.username|title }}</h1>
+            <p style="margin: 5px 0 0 0; opacity: 0.8; font-weight: 500;">
+                <i class="fas fa-user-shield me-2"></i> Staff Account | {{ user.organization.name }}
+            </p>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="alert alert-{% if msg.tags == 'error' %}error{% else %}success{% endif %}">
+                <i class="fas {% if msg.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+                {{ msg }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="profile-grid">
+        <div class="profile-card">
+            <h2><i class="fas fa-id-card"></i> Personal Information</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" class="form-control" value="{{ user.username }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Organization</label>
+                    <input type="text" class="form-control" value="{{ user.organization.name }}" disabled>
+                </div>
+                <button type="submit" name="update_profile" class="btn-profile btn-blue">
+                    <i class="fas fa-save"></i> Update Profile Details
+                </button>
+            </form>
+        </div>
+
+        <div class="profile-card">
+            <h2><i class="fas fa-lock"></i> Security Settings</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {% for field in password_form %}
+                    <div class="form-group">
+                        <label>{{ field.label }}</label>
+                        <input type="{{ field.field.widget.input_type }}" 
+                               name="{{ field.html_name }}" 
+                               class="form-control"
+                               placeholder="Enter {{ field.label|lower }}">
+                        {% if field.errors %}
+                            <div style="color:#C53030; font-size: 0.8rem; margin-top: 5px; font-weight: 600;">
+                                {{ field.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" name="change_password" class="btn-profile btn-green">
+                    <i class="fas fa-key"></i> Change Secret Password
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

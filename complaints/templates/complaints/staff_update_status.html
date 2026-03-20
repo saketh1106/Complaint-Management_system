@@ -1,0 +1,252 @@
+{% extends "complaints/base_staff.html" %}
+
+{% block dashboard_content %}
+{% load static %}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    /* ===== Table & Search Styling ===== */
+    .status-container {
+        padding: 20px;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .search-section {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .filter-btn {
+        padding: 8px 16px;
+        border-radius: 10px;
+        border: 1px solid #E9EDF7;
+        background: #F4F7FE;
+        color: #1B2559;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .filter-btn:hover { background: #E2E8F0; }
+
+    .filter-btn.active {
+        background: #4318FF;
+        color: #fff;
+        border-color: #4318FF;
+    }
+
+    .search-box {
+        position: relative;
+        width: 320px;
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #A3AED0;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 12px 15px 12px 45px;
+        border-radius: 12px;
+        border: 1px solid #E9EDF7;
+        background: #F4F7FE;
+        font-size: 0.9rem;
+        outline: none;
+        transition: 0.3s;
+    }
+
+    .status-update-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 10px;
+    }
+
+    .status-update-table th {
+        background-color: #4318FF;
+        color: #fff;
+        padding: 15px 20px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+    }
+
+    .status-update-table td {
+        padding: 16px 20px;
+        border-bottom: 1px solid #F1F5F9;
+        color: #1B2559;
+        font-size: 0.95rem;
+    }
+
+    .complaint-id-badge {
+        font-weight: 800;
+        color: #4318FF;
+        background: rgba(67, 24, 255, 0.1);
+        padding: 4px 8px;
+        border-radius: 6px;
+    }
+
+    select {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #D1D5DB;
+        outline: none;
+        font-size: 0.85rem;
+    }
+
+    .btn-update {
+        background: #4318FF;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-update:hover { background: #3311CC; transform: translateY(-1px); }
+</style>
+
+<div class="status-container">
+    <div class="search-section">
+        <h4 style="font-weight: 700; color: #1B2559; margin: 0;">Update Complaints</h4>
+        
+        <div class="filter-group">
+            <button class="filter-btn active" onclick="setStatusFilter('all', this)">All</button>
+            <button class="filter-btn" onclick="setStatusFilter('pending', this)">Pending</button>
+            <button class="filter-btn" onclick="setStatusFilter('in progress', this)">In Progress</button>
+            <button class="filter-btn" onclick="setStatusFilter('resolved', this)">Resolved</button>
+        </div>
+
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="statusSearch" class="search-input" 
+                   placeholder="Search ID or Title..." onkeyup="applyAllFilters()">
+        </div>
+    </div>
+
+    <table class="status-update-table" id="complaintTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Complaint Title</th>
+                <th>Current Status</th>
+                <th>Update To</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for complaint in assigned_complaints %}
+            <tr class="complaint-row" 
+                data-status="{{ complaint.status|lower }}"
+                data-search="#{{ complaint.id }} {{ complaint.title|lower }} {{ complaint.status|lower }}">
+                
+                <td><span class="complaint-id-badge">#{{ complaint.id }}</span></td>
+                <td>
+                    <strong style="display:block;">{{ complaint.title }}</strong>
+                    <small style="color: #A3AED0;">User: {{ complaint.user.username }}</small>
+                </td>
+                <td>
+                    {% if complaint.status == "Resolved" %}
+                        <span style="color: #16A34A; font-weight: 700;"><i class="fas fa-check-circle"></i> {{ complaint.status }}</span>
+                    {% elif complaint.status == "In Progress" %}
+                        <span style="color: #4318FF; font-weight: 700;"><i class="fas fa-spinner fa-spin"></i> {{ complaint.status }}</span>
+                    {% else %}
+                        <span style="color: #F59E0B; font-weight: 700;"><i class="fas fa-clock"></i> {{ complaint.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="POST" action="{% url 'staff_update_status' %}" id="statusForm-{{ complaint.id }}">
+                        {% csrf_token %}
+                        <input type="hidden" name="complaint_id" value="{{ complaint.id }}">
+                        <select name="status" id="select-{{ complaint.id }}" required>
+                            <option value="Pending" {% if complaint.status == "Pending" %}selected{% endif %}>Pending</option>
+                            <option value="In Progress" {% if complaint.status == "In Progress" %}selected{% endif %}>In Progress</option>
+                            <option value="Resolved" {% if complaint.status == "Resolved" %}selected{% endif %}>Resolved</option>
+                        </select>
+                        <button type="button" class="btn-update" onclick="confirmStatusUpdate('{{ complaint.id }}')">Update</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" style="text-align:center; padding:50px; color:#A3AED0;">
+                    <i class="fas fa-folder-open fa-3x mb-3"></i>
+                    <p>No complaints assigned yet.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+let currentFilter = 'all';
+
+function setStatusFilter(status, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = status;
+    applyAllFilters();
+}
+
+function applyAllFilters() {
+    let searchInput = document.getElementById('statusSearch').value.toLowerCase();
+    let rows = document.querySelectorAll('.complaint-row');
+
+    rows.forEach(row => {
+        let rowStatus = row.getAttribute('data-status');
+        let searchData = row.getAttribute('data-search');
+        let matchesStatus = (currentFilter === 'all' || rowStatus === currentFilter);
+        let matchesSearch = searchData.includes(searchInput);
+        row.style.display = (matchesStatus && matchesSearch) ? "" : "none";
+    });
+}
+
+// Professional Alert Message using SweetAlert2
+function confirmStatusUpdate(complaintId) {
+    const status = document.getElementById('select-' + complaintId).value;
+    let warningText = "This will update the case status.";
+    
+    if (status === 'Resolved') {
+        warningText = "Closing this as 'Resolved' will lock the chat permanently!";
+    }
+
+    Swal.fire({
+        title: 'Update Status?',
+        text: warningText,
+        icon: status === 'Resolved' ? 'warning' : 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#4318FF',
+        cancelButtonColor: '#A3AED0',
+        confirmButtonText: 'Yes, update it!',
+        cancelButtonText: 'Cancel',
+        borderRadius: '20px'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('statusForm-' + complaintId).submit();
+        }
+    });
+}
+</script>
+{% endblock %}

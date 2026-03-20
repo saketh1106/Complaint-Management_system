@@ -1,0 +1,334 @@
+{% extends 'complaints/base.html' %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary: #4318FF;
+        --bg-body: #F4F7FE;
+        --sidebar-bg: #FFFFFF;
+        --chat-bg: #F8FAFC;
+        --text-navy: #1B2559;
+        --text-grey: #A3AED0;
+    }
+
+    body { 
+        background: var(--bg-body); 
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        overflow: hidden;
+    }
+
+    .master-wrapper {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .glass-window {
+        width: 100%;
+        max-width: 1300px;
+        height: 88vh;
+        background: white;
+        border-radius: 35px;
+        display: flex;
+        box-shadow: 0 50px 100px -20px rgba(0,0,0,0.1);
+        overflow: hidden;
+        border: 1px solid white;
+    }
+
+    /* --- SIDEBAR --- */
+    .chat-sidebar {
+        width: 380px;
+        background: var(--sidebar-bg);
+        border-right: 1px solid #E9EDF7;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar-head { padding: 35px 30px 20px; }
+    .sidebar-head h4 { font-weight: 800; font-size: 1.5rem; color: var(--text-navy); letter-spacing: -1px; }
+
+    .search-box {
+        margin-top: 20px;
+        position: relative;
+    }
+
+    .search-box i { position: absolute; left: 15px; top: 13px; color: var(--text-grey); }
+    .search-input {
+        width: 100%;
+        padding: 12px 15px 12px 45px;
+        border-radius: 15px;
+        background: #F4F7FE;
+        border: 2px solid transparent;
+        font-weight: 600;
+        transition: 0.3s;
+        box-sizing: border-box;
+    }
+    .search-input:focus { border-color: var(--primary); background: white; outline: none; }
+
+    .chat-scroller { flex: 1; overflow-y: auto; padding: 10px; }
+
+    .case-card {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 18px 20px;
+        border-radius: 20px;
+        text-decoration: none;
+        transition: 0.3s;
+        margin-bottom: 5px;
+    }
+
+    .case-card:hover { background: #F8FAFC; }
+    .case-card.active { background: #F4F7FE; }
+
+    .case-card.active .avatar-box { background: var(--primary); color: white; }
+
+    .avatar-box {
+        width: 48px; height: 48px;
+        background: #E9EDF7;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+
+    /* --- MAIN MESSENGER --- */
+    .messenger-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: #FDFDFD;
+    }
+
+    .messenger-header {
+        padding: 20px 40px;
+        background: white;
+        border-bottom: 1px solid #E9EDF7;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .message-scroller {
+        flex: 1;
+        background: #F4F7FE;
+        padding: 30px 40px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background-image: radial-gradient(#d1d9e6 0.5px, transparent 0.5px);
+        background-size: 20px 20px;
+    }
+
+    .msg-bubble {
+        max-width: 60%;
+        padding: 14px 20px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        position: relative;
+    }
+
+    .msg-bubble.sent {
+        align-self: flex-end;
+        background: var(--primary);
+        color: white;
+        border-radius: 22px 22px 4px 22px;
+        box-shadow: 0 10px 20px rgba(67, 24, 255, 0.15);
+    }
+
+    .msg-bubble.received {
+        align-self: flex-start;
+        background: white;
+        color: var(--text-navy);
+        border-radius: 22px 22px 22px 4px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+
+    .meta { font-size: 0.7rem; opacity: 0.6; margin-top: 8px; display: block; text-align: right; }
+
+    /* --- PREMIUM INPUT BAR --- */
+    .input-console {
+        padding: 25px 40px;
+        background: white;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .input-container {
+        flex: 1;
+        background: #F4F7FE;
+        border-radius: 20px;
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .file-trigger {
+        width: 40px; height: 40px;
+        border-radius: 12px;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--primary);
+        transition: 0.2s;
+    }
+    .file-trigger:hover { background: var(--primary); color: white; }
+
+    .main-text-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 10px;
+        font-weight: 600;
+        outline: none;
+        color: var(--text-navy);
+    }
+
+    .send-btn {
+        width: 55px; height: 55px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 18px;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 10px 20px rgba(67, 24, 255, 0.2);
+    }
+    .send-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(67, 24, 255, 0.3); }
+
+</style>
+
+<div class="master-wrapper">
+    <div class="glass-window">
+        
+        <aside class="chat-sidebar">
+            <div class="sidebar-head">
+                <h4>Support Cases</h4>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="caseSearch" class="search-input" placeholder="Search by subject..." onkeyup="filterCases()">
+                </div>
+            </div>
+
+            <div class="chat-scroller">
+                {% for complaint in complaints %}
+                <a href="?complaint_id={{ complaint.id }}" class="case-card {% if selected_complaint.id == complaint.id %}active{% endif %}" data-title="{{ complaint.title|lower }}">
+                    <div class="avatar-box">
+                        {{ complaint.title|slice:":1"|upper }}
+                    </div>
+                    <div style="overflow: hidden;">
+                        <div class="fw-bold text-dark small text-truncate">{{ complaint.title }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-grey);">
+                            #{{ complaint.id }} • 
+                            <span style="font-weight: 800;" class="{% if complaint.status == 'Resolved' %}text-success{% else %}text-primary{% endif %}">
+                                {{ complaint.status }}
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <main class="messenger-area">
+            {% if selected_complaint %}
+            <div class="messenger-header">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="avatar-box" style="background: var(--primary); color: white; width: 42px; height: 42px;">
+                        {{ selected_complaint.user.username|slice:":1"|upper }}
+                    </div>
+                    <div>
+                        <h6 class="m-0 fw-bold">{{ selected_complaint.title }}</h6>
+                        <small class="text-muted fw-bold">Case Owner: {{ selected_complaint.user.username }}</small>
+                    </div>
+                </div>
+                <div>
+                    {% if selected_complaint.status == 'Resolved' %}
+                        <span class="badge bg-success rounded-pill px-3 py-2">Resolved</span>
+                    {% else %}
+                        <span class="badge bg-primary rounded-pill px-3 py-2">In Progress</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="message-scroller" id="scrollBox">
+                {% for msg in messages %}
+                <div class="msg-bubble {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
+                    {% if msg.sender != request.user %}
+                        <small style="font-weight: 800; font-size: 0.65rem; color: var(--primary); text-transform: uppercase; margin-bottom: 4px; display: block;">{{ msg.sender.username }}</small>
+                    {% endif %}
+                    
+                    {{ msg.content }}
+
+                    {% if msg.file %}
+                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2);">
+                            <a href="{{ msg.file.url }}" target="_blank" style="color: inherit; text-decoration: none; font-size: 0.8rem; font-weight: 700;">
+                                <i class="fas fa-file-arrow-down mr-2"></i> Evidence_Attachment
+                            </a>
+                        </div>
+                    {% endif %}
+                    <span class="meta">{{ msg.timestamp|date:"P" }}</span>
+                </div>
+                {% empty %}
+                <div class="text-center mt-5 text-muted">Initialize the discussion regarding this case.</div>
+                {% endfor %}
+            </div>
+
+            {% if selected_complaint.is_chat_active %}
+            <form method="POST" enctype="multipart/form-data" class="input-console">
+                {% csrf_token %}
+                <div class="input-container">
+                    <label class="file-trigger">
+                        <i class="fas fa-plus"></i>
+                        <input type="file" name="file" style="display: none;" onchange="alert('File attached: ' + this.files[0].name)">
+                    </label>
+                    <input type="text" name="message" class="main-text-input" placeholder="Compose your message..." required>
+                </div>
+                <button type="submit" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+            {% else %}
+            <div class="input-console" style="justify-content: center; background: #FFF5F5;">
+                <p class="m-0 text-danger fw-bold"><i class="fas fa-lock"></i> Discussion closed for resolved complaints.</p>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="h-100 d-flex flex-column align-items-center justify-content-center">
+                <div style="width: 100px; height: 100px; background: #F4F7FE; border-radius: 30px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                    <i class="fas fa-comments" style="font-size: 2.5rem; color: #E9EDF7;"></i>
+                </div>
+                <h5 class="fw-bold text-navy">No Case Selected</h5>
+                <p class="text-muted">Choose a complaint from the left to view the history.</p>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+
+<script>
+    function filterCases() {
+        let input = document.getElementById('caseSearch').value.toLowerCase();
+        document.querySelectorAll('.case-card').forEach(card => {
+            card.style.display = card.dataset.title.includes(input) ? "flex" : "none";
+        });
+    }
+    const box = document.getElementById('scrollBox');
+    if (box) box.scrollTop = box.scrollHeight;
+</script>
+{% endblock %}

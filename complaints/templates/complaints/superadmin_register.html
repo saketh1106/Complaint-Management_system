@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organization Setup | SuperAdmin Registration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --bg-body: #F8FAFC;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --error: #EF4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body { 
+            background: var(--bg-body); 
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 30px 30px;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 20px;
+        }
+
+        .register-container { 
+            background: white; 
+            padding: 0; 
+            border-radius: 24px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08); 
+            width: 100%; 
+            max-width: 500px; 
+            overflow: hidden;
+        }
+
+        .header-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .header-banner i { font-size: 2.5rem; margin-bottom: 15px; opacity: 0.9; }
+        .header-banner h2 { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; }
+        .header-banner p { font-size: 0.9rem; opacity: 0.8; margin-top: 5px; }
+
+        .form-content { padding: 40px; }
+
+        .form-section-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--primary);
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-section-title::after { content: ""; flex: 1; height: 1px; background: #eee; }
+
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main); font-size: 0.85rem; }
+        
+        .input-group { position: relative; margin-bottom: 20px; }
+        .input-group i { 
+            position: absolute; 
+            left: 15px; 
+            top: 38px; 
+            color: var(--text-muted); 
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        input { 
+            width: 100%; 
+            padding: 12px 15px 12px 42px; 
+            border: 1.5px solid #E5E7EB; 
+            border-radius: 12px; 
+            font-size: 0.95rem;
+            transition: 0.3s;
+            outline: none;
+            background: #FAFAFA;
+        }
+
+        input:focus { 
+            border-color: var(--primary); 
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        input:focus + i { color: var(--primary); }
+
+        /* Special Secret Key Style */
+        .secret-field { background: #FFF7ED; border-color: #FED7AA; }
+        .secret-field:focus { border-color: #F97316; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1); }
+
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 14px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            font-size: 1rem; 
+            transition: 0.3s;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2); }
+
+        .error-msg { 
+            color: var(--error); 
+            background: #FEE2E2; 
+            padding: 12px; 
+            border-radius: 10px; 
+            font-size: 0.85rem; 
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--error);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-links { text-align: center; margin-top: 25px; font-size: 0.9rem; color: var(--text-muted); }
+        .footer-links a { color: var(--primary); text-decoration: none; font-weight: 700; }
+        
+        .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        @media (max-width: 480px) {
+            .grid-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="register-container">
+    <div class="header-banner">
+        <i class="fas fa-building-shield"></i>
+        <h2>SuperAdmin Portal</h2>
+        <p>Register your organization and start managing complaints</p>
+    </div>
+
+    <div class="form-content">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="error-msg">
+                    <i class="fas fa-circle-exclamation"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" action="{% url 'superadmin_register' %}">
+            {% csrf_token %}
+            
+            <div class="form-section-title">Organization Details</div>
+
+            <div class="input-group">
+                <label>Organization Name</label>
+                <input type="text" name="organization_name" placeholder="e.g. TechCorp Solutions" required>
+                <i class="fas fa-sitemap"></i>
+            </div>
+
+            <div class="form-section-title">Admin Account</div>
+
+            <div class="grid-row">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" name="username" placeholder="admin_user" required>
+                    <i class="fas fa-user-gear"></i>
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" placeholder="admin@org.com" required>
+                    <i class="fas fa-envelope"></i>
+                </div>
+            </div>
+
+            <div class="grid-row">
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password1" placeholder="••••••••" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="input-group">
+                    <label>Confirm</label>
+                    <input type="password" name="password2" placeholder="••••••••" required>
+                    <i class="fas fa-check-double"></i>
+                </div>
+            </div>
+
+            <div class="form-section-title">Security Authorization</div>
+
+            <div class="input-group">
+                <label>Master Secret Key</label>
+                <input type="password" name="secret_key" class="secret-field" placeholder="Enter high-security key" required>
+                <i class="fas fa-shield-halved" style="color: #F97316;"></i>
+            </div>
+
+            <button type="submit">
+                Initialize Organization <i class="fas fa-rocket"></i>
+            </button>
+        </form>
+        
+        <div class="footer-links">
+            Already have an account? <a href="{% url 'staff_login' %}">Staff Login</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

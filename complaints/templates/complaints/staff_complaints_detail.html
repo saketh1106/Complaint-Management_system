@@ -1,0 +1,121 @@
+<!-- staff_complaints_detail.html -->
+{% extends "complaints/base_admin.html" %}
+
+{% block dashboard_content %}
+{% load static %}
+
+<style>
+    /* Table Styling to match User/Staff management */
+    .complaints-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-top: 20px;
+    }
+
+    .complaints-table th,
+    .complaints-table td {
+        padding: 16px 20px;
+        text-align: left;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .complaints-table th {
+        background-color: #4F46E5; /* Dark brand blue */
+        color: #ffffff !important;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .complaints-table tr:last-child td { border-bottom: none; }
+    .complaints-table tr:hover { background-color: #F8FAFC; }
+
+    /* Status Badge Styling */
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .status-resolved { background: #DCFCE7; color: #166534; }
+    .status-pending { background: #FEF3C7; color: #92400E; }
+
+    .back-btn {
+        display: inline-block;
+        margin-top: 25px;
+        padding: 10px 20px;
+        background: #4F46E5;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: 0.3s;
+    }
+    .back-btn:hover { background: #4338CA; }
+</style>
+
+<div class="header-section">
+    <h2>Complaints Assigned to <span style="color: #4F46E5;">{{ staff.username }}</span></h2>
+</div>
+
+<table class="complaints-table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Assigned Time</th>
+            <th>Status</th>
+            <th>Resolved Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for complaint in staff_complaints %}
+        <tr>
+            <td style="font-weight: 600; color: #1F2937;">{{ complaint.title }}</td>
+            
+            <!-- Assigned Time -->
+            <td>
+                {% if complaint.assigned_at %}
+                    {{ complaint.assigned_at|date:"M d, Y H:i" }}
+                {% else %}
+                    <span style="color:#9CA3AF;">Not Assigned</span>
+                {% endif %}
+            </td>
+
+            <!-- Status -->
+            <td>
+                <span class="status-badge {% if complaint.status == 'Resolved' %}status-resolved{% else %}status-pending{% endif %}">
+                    {{ complaint.status }}
+                </span>
+            </td>
+
+            <!-- Resolved Time -->
+            <td>
+                {% if complaint.status == "Resolved" and complaint.updated_at %}
+                    {{ complaint.updated_at|date:"M d, Y H:i" }}
+                {% else %}
+                    <span style="color: #9CA3AF;">-</span>
+                {% endif %}
+            </td>
+
+            <!-- Time Taken -->
+            
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align:center; padding:50px; color:#6B7280;">
+                <p>No complaints assigned to this staff member yet.</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'staff_management' %}" class="back-btn">← Back to Staff</a>
+
+{% endblock %}

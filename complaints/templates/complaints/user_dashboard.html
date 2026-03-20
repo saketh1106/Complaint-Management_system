@@ -1,0 +1,272 @@
+{% extends "complaints/base.html" %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #1a1a1d 0%, #3a3a3d 100%);
+        --accent-purple: #6c5ce7;
+        --accent-hover: #5b4bc4;
+        --body-bg: #f8f9fc;
+        --text-main: #1d1d1f;
+        --text-muted: #8e8e93;
+    }
+
+    body { 
+        background-color: var(--body-bg); 
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: var(--text-main);
+    }
+
+    /* --- Top Navigation --- */
+    .top-nav-glass {
+        background: rgba(26, 26, 29, 0.8);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 12px 5%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .nav-brand { font-weight: 800; font-size: 1.5rem; color: #fff; text-decoration: none; letter-spacing: -0.5px; }
+    .nav-links a { color: rgba(255,255,255,0.7); text-decoration: none; margin: 0 15px; font-weight: 600; font-size: 0.85rem; transition: 0.3s; }
+    .nav-links a:hover, .nav-links a.active { color: #fff; }
+
+    /* --- Hero Header --- */
+    .dashboard-header {
+        background: var(--primary-gradient);
+        padding: 80px 0 120px 0;
+        color: white;
+        text-align: center;
+        margin-bottom: -70px;
+    }
+
+    .header-content h1 { font-weight: 800; letter-spacing: -1px; }
+
+    /* --- Stats Section --- */
+    .stats-wrapper {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card-premium {
+        background: white;
+        padding: 24px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.02);
+        border: 1px solid rgba(0,0,0,0.03);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-card-premium:hover { transform: translateY(-5px); box-shadow: 0 20px 35px rgba(0,0,0,0.05); }
+    .stat-label { color: var(--text-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .stat-number { font-size: 2rem; font-weight: 800; line-height: 1; }
+
+    /* --- Table Styling --- */
+    .table-container-horizontal {
+        background: white;
+        border-radius: 28px;
+        padding: 30px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.02);
+    }
+
+    .table thead th {
+        background: #fcfdfe;
+        border: none;
+        color: var(--text-muted);
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 700;
+        padding: 15px 20px;
+    }
+
+    .complaint-row:hover { background: #fbfcfe; }
+    .complaint-title-cell { font-weight: 700; color: var(--text-dark); margin-bottom: 2px; }
+
+    /* --- Status Badges --- */
+    .badge-modern {
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .bg-soft-pending { background: #fff8eb; color: #f59e0b; }
+    .bg-soft-progress { background: #eef2ff; color: #4318ff; }
+    .bg-soft-resolved { background: #f0fdf4; color: #22c55e; }
+
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .dot-pending { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+    .dot-progress { background: #4318ff; box-shadow: 0 0 8px #4318ff; }
+    .dot-resolved { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+
+    /* --- Action Button --- */
+    .btn-action {
+        background: var(--text-main);
+        color: white;
+        border-radius: 12px;
+        padding: 10px 18px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-decoration: none;
+        transition: 0.2s;
+        border: none;
+    }
+
+    .btn-action:hover { background: var(--accent-purple); color: white; transform: scale(1.05); }
+
+    .btn-create-new {
+        background: var(--accent-purple);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 0 10px 20px rgba(108, 92, 231, 0.2);
+        transition: 0.3s;
+    }
+    .btn-create-new:hover { background: var(--accent-hover); color: white; transform: translateY(-2px); }
+
+</style>
+
+<nav class="top-nav-glass">
+    <a href="#" class="nav-brand">CMS<span style="color:var(--accent-purple)">.</span></a>
+    <div class="nav-links d-none d-md-block">
+        <a href="{% url 'user_dashboard' %}" class="active">DASHBOARD</a>
+        <a href="{% url 'create_complaint' %}">FILE COMPLAINT</a>
+    </div>
+    <div class="d-flex align-items-center">
+        <div class="text-end me-3 d-none d-sm-block">
+            <small class="text-muted d-block" style="font-size: 10px; font-weight: 700; text-transform: uppercase;">User Session</small>
+            <span class="text-white fw-bold">{{ request.user.username }}</span>
+        </div>
+        <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold">Logout</a>
+    </div>
+</nav>
+
+<header class="dashboard-header">
+    <div class="container header-content">
+        <h1 class="display-5 mb-2">Welcome Back.</h1>
+        <p class="opacity-75 fw-500">Managing service requests for <strong>{{ request.user.organization.name }}</strong></p>
+        <div class="mt-4">
+        </div>
+    </div>
+</header>
+
+<div class="container" style="position: relative; z-index: 5;">
+    <div class="stats-wrapper">
+        <div class="stat-card-premium">
+            <span class="stat-label">Total Volume</span>
+            <span class="stat-number">{{ total_complaints }}</span>
+        </div>
+        <div class="stat-card-premium">
+            <span class="stat-label" style="color: #f59e0b;">Waiting</span>
+            <span class="stat-number">{{ pending_complaints }}</span>
+        </div>
+        <div class="stat-card-premium">
+            <span class="stat-label" style="color: #4318ff;">Actively Reviewing</span>
+            <span class="stat-number">{{ inprogress_complaints }}</span>
+        </div>
+        <div class="stat-card-premium">
+            <span class="stat-label" style="color: #22c55e;">Success Rate</span>
+            <span class="stat-number text-success">{{ resolved_complaints }}</span>
+        </div>
+    </div>
+
+    <div class="table-container-horizontal mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-800 m-0">Case History</h4>
+            <div class="text-muted small fw-600">Showing last {{ complaints|length }} entries</div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Subject Details</th>
+                        <th>Created</th>
+                        <th>Priority</th>
+                        <th class="text-center">Current Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for complaint in complaints %}
+                    <tr class="complaint-row">
+                        <td class="py-4">
+                            <div class="complaint-title-cell">{{ complaint.title }}</div>
+                            <code class="text-muted" style="font-size: 0.75rem;">#{{ complaint.complaint_id|default:complaint.id }}</code>
+                        </td>
+                        <td>
+                            <span class="text-muted small fw-600">{{ complaint.created_at|date:"M d, Y" }}</span>
+                        </td>
+                        <td>
+                            {% if complaint.priority == 'High' %}
+                                <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle fw-800 px-3 py-1" style="font-size: 0.65rem;">
+                                    <i class="fas fa-fire-alt me-1"></i> HIGH
+                                </span>
+                            {% else %}
+                                <span class="text-muted small fw-700">{{ complaint.priority|upper }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if complaint.status == 'Pending' %}
+                                <div class="badge-modern bg-soft-pending"><div class="status-dot dot-pending"></div> Pending</div>
+                            {% elif complaint.status == 'In Progress' %}
+                                <div class="badge-modern bg-soft-progress"><div class="status-dot dot-progress"></div> In Progress</div>
+                            {% else %}
+                                <div class="badge-modern bg-soft-resolved"><div class="status-dot dot-resolved"></div> Resolved</div>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'complaint_detail' complaint.id %}" class="btn-action">
+                                View Case <i class="fas fa-arrow-right ms-1" style="font-size: 0.7rem;"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="opacity-25 mb-3">
+                                <i class="fas fa-folder-open fa-3x"></i>
+                            </div>
+                            <h5 class="fw-bold text-muted">No cases found</h5>
+                            <p class="text-muted small">You haven't filed any complaints yet. Your history will appear here.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Smooth fade in for rows
+    document.querySelectorAll('.complaint-row').forEach((row, index) => {
+        row.style.opacity = '0';
+        row.style.transform = 'translateY(10px)';
+        row.style.transition = '0.3s ease-out';
+        setTimeout(() => {
+            row.style.opacity = '1';
+            row.style.transform = 'translateY(0)';
+        }, index * 50);
+    });
+</script>
+
+{% endblock %}

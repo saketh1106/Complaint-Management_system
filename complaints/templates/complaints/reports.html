@@ -1,0 +1,24 @@
+<!--reports-->
+{% extends "complaints/base_admin.html" %}
+
+{% block dashboard_content %}
+<h2>Reports</h2>
+<div class="cards">
+    <div class="card">
+        <h4>Total Complaints</h4>
+        <h2>{{ total }}</h2>
+    </div>
+    <div class="card">
+        <h4>Pending</h4>
+        <h2>{{ pending }}</h2>
+    </div>
+    <div class="card">
+        <h4>In Progress</h4>
+        <h2>{{ in_progress }}</h2>
+    </div>
+    <div class="card">
+        <h4>Resolved</h4>
+        <h2>{{ resolved }}</h2>
+    </div>
+</div>
+{% endblock %}

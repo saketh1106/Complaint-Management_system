@@ -1,0 +1,262 @@
+{% extends "complaints/base_admin.html" %}
+
+{% block dashboard_content %}
+{% load static %}
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary: #4318FF;
+        --danger: #EF4444;
+        --success: #01B574;
+        --text-dark: #1B2559;
+        --text-grey: #A3AED0;
+    }
+
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    /* Layout Reset */
+    #deleteForm { max-width: none !important; width: 100%; background: transparent; padding: 0; box-shadow: none; }
+
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .header-section h2 { font-weight: 800; color: var(--text-dark); margin: 0; }
+
+    /* Top Action Buttons */
+    .top-buttons { display: flex; gap: 12px; }
+
+    .btn {
+        padding: 12px 20px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: 0.3s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary { background: var(--primary); color: white; box-shadow: 0 10px 20px rgba(67, 24, 255, 0.2); }
+    .btn-primary:hover { transform: translateY(-2px); background: #3311CC; }
+
+    .btn-outline-danger { 
+        background: white; 
+        color: var(--danger); 
+        border: 1px solid var(--danger); 
+    }
+    .btn-outline-danger:hover { background: var(--danger); color: white; }
+
+    /* Table Styling */
+    .table-container {
+        background: white;
+        border-radius: 24px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    .staff-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    
+    .staff-table th {
+        padding: 15px 20px;
+        text-align: left;
+        color: var(--text-grey);
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 1px solid #F1F4F9;
+    }
+
+    .staff-table td {
+        padding: 18px 20px;
+        vertical-align: middle;
+        border-bottom: 1px solid #F1F4F9;
+        transition: 0.2s;
+    }
+
+    .staff-table tr:hover td { background: #F8FAFC; }
+
+    /* Delete Mode Active Styling */
+    .delete-mode-active td { background: #FFF5F5 !important; }
+    
+    /* Staff Identity Cell */
+    .staff-info { display: flex; align-items: center; gap: 15px; }
+    .staff-avatar {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        color: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1rem;
+    }
+
+    .username-link {
+        font-weight: 700;
+        color: var(--text-dark);
+        text-decoration: none;
+        transition: 0.2s;
+    }
+    .username-link:hover { color: var(--primary); }
+
+    /* Status Badges */
+    .badge {
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+    .badge-active { background: rgba(1, 181, 116, 0.1); color: var(--success); }
+    .badge-inactive { background: #F4F7FE; color: var(--text-grey); }
+
+    /* Floating Action Bar */
+    #confirmDeleteDiv {
+        background: white;
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        position: sticky;
+        bottom: 20px;
+        margin-top: 20px;
+        z-index: 100;
+        border: 1px solid #E9EDF7;
+    }
+
+    .checkbox-col input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        accent-color: var(--danger);
+    }
+</style>
+
+<div class="header-section">
+    <h2>Staff Management</h2>
+    <div class="top-buttons">
+        <a href="{% url 'add_staff' %}" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i> Add Staff
+        </a>
+        <button type="button" id="toggleDeleteBtn" class="btn btn-outline-danger">
+            <i class="fas fa-trash-can"></i> Delete Staff
+        </button>
+    </div>
+</div>
+
+<div class="table-container">
+    <form method="POST" id="deleteForm">
+        {% csrf_token %}
+        <table class="staff-table">
+            <thead>
+                <tr>
+                    <th class="checkbox-col" style="display:none; width: 50px;">
+                        <input type="checkbox" id="selectAllStaff">
+                    </th>
+                    <th>Staff Member</th>
+                    <th>Email Address</th>
+                    <th>Status</th>
+                    <th>Last Activity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for staff in staff_users %}
+                <tr class="staff-row">
+                    <td class="checkbox-col" style="display:none;">
+                        <input type="checkbox" name="delete_staff" value="{{ staff.id }}">
+                    </td>
+                    <td>
+                        <div class="staff-info">
+                            <div class="staff-avatar">{{ staff.username|make_list|first|upper }}</div>
+                            <div class="d-flex flex-column">
+                                <a href="{% url 'staff_complaints_detail' staff.id %}" class="username-link">
+                                    {{ staff.username|title }}
+                                </a>
+                                <small style="color: var(--text-grey);">Staff ID: #{{ staff.id }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight: 500; color: var(--text-dark);">{{ staff.email }}</td>
+                    <td>
+                        {% if staff.last_login %}
+                            <span class="badge badge-active">Active</span>
+                        {% else %}
+                            <span class="badge badge-inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-size: 0.85rem; font-weight: 600; color: var(--text-grey);">
+                        {% if staff.last_login %}
+                            <i class="far fa-clock me-1"></i> {{ staff.last_login|date:"M d, Y" }}
+                        {% else %}
+                            <span style="font-style: italic;">No login recorded</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:60px; color: var(--text-grey);">
+                        <i class="fas fa-users-slash d-block mb-3" style="font-size: 2rem; opacity: 0.3;"></i>
+                        No staff members found in this organization.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="display:none;" id="confirmDeleteDiv">
+            <button type="submit" class="btn" style="background: var(--danger); color: white;" onclick="return confirm('Are you sure you want to delete selected staff?')">
+                <i class="fas fa-check"></i> Confirm Deletion
+            </button>
+            <button type="button" id="cancelDeleteBtn" class="btn" style="background: #F4F7FE; color: var(--text-dark);">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    const toggleDeleteBtn = document.getElementById('toggleDeleteBtn');
+    const confirmDeleteDiv = document.getElementById('confirmDeleteDiv');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    const checkboxes = document.querySelectorAll('.checkbox-col');
+    const addStaffBtn = document.querySelector('.top-buttons a');
+    const selectAllStaff = document.getElementById('selectAllStaff');
+    const rows = document.querySelectorAll('.staff-row');
+
+    toggleDeleteBtn.addEventListener('click', () => {
+        addStaffBtn.style.display = 'none';
+        toggleDeleteBtn.style.display = 'none';
+        checkboxes.forEach(cb => cb.style.display = 'table-cell');
+        rows.forEach(row => row.classList.add('delete-mode-active'));
+        confirmDeleteDiv.style.display = 'flex';
+    });
+
+    cancelDeleteBtn.addEventListener('click', () => {
+        addStaffBtn.style.display = 'inline-flex';
+        toggleDeleteBtn.style.display = 'inline-flex';
+        checkboxes.forEach(cb => cb.style.display = 'none');
+        rows.forEach(row => row.classList.remove('delete-mode-active'));
+        confirmDeleteDiv.style.display = 'none';
+    });
+
+    selectAllStaff?.addEventListener('change', function() {
+        const allBoxes = document.querySelectorAll('input[name="delete_staff"]');
+        allBoxes.forEach(cb => cb.checked = this.checked);
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,118 @@
+<!--user_complaints_detail-->
+{% extends "complaints/base_admin.html" %}
+
+{% block dashboard_content %}
+{% load static %}
+
+<style>
+    /* Uniform Table Styling */
+    .user-complaints-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-top: 20px;
+    }
+
+    .user-complaints-table th,
+    .user-complaints-table td {
+        padding: 16px 20px;
+        text-align: left;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .user-complaints-table th {
+        background-color: #4F46E5; /* Dark brand blue */
+        color: #ffffff !important;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .user-complaints-table tr:last-child td { border-bottom: none; }
+    .user-complaints-table tr:hover { background-color: #F8FAFC; }
+
+    /* Status Badges */
+    .badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+    .badge-resolved { background: #DCFCE7; color: #166534; }
+    .badge-pending { background: #FEF3C7; color: #92400E; }
+    .badge-assigned { background: #DBEAFE; color: #1E40AF; }
+
+    .back-btn {
+        display: inline-block;
+        margin-top: 25px;
+        padding: 10px 20px;
+        background: #4F46E5;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: 0.3s;
+    }
+    .back-btn:hover { background: #4338CA; }
+</style>
+
+<div class="header-section">
+    <h2>Complaints for <span style="color: #4F46E5;">{{ user.username }}</span></h2>
+</div>
+
+<table class="user-complaints-table">
+    <thead>
+        <tr>
+            <th>Complaint ID</th>
+            <th>Title</th>
+            <th>Created At</th>
+            <th>Status</th>
+            <th>Assigned To</th>
+            <th>Resolved At</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for complaint in complaints %}
+        <tr>
+            <td style="font-weight: 600; color: #4F46E5;">#{{ complaint.id }}</td>
+            <td style="font-weight: 500; color: #1F2937;">{{ complaint.title }}</td>
+            <td>{{ complaint.created_at|date:"M d, Y" }}</td>
+            <td>
+                <span class="badge {% if complaint.status == 'Resolved' %}badge-resolved{% elif complaint.staff %}badge-assigned{% else %}badge-pending{% endif %}">
+                    {{ complaint.status }}
+                </span>
+            </td>
+            <td>
+                {% if complaint.staff %}
+                    <span style="color: #374151;">{{ complaint.staff.username }}</span>
+                {% else %}
+                    <span style="color: #9CA3AF; font-style: italic;">Not Assigned</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if complaint.status == "Resolved" %}
+                    {{ complaint.updated_at|date:"M d, Y H:i" }}
+                {% else %}
+                    <span style="color: #9CA3AF;">-</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" style="text-align:center; padding:50px; color:#6B7280;">
+                No complaints found for this user.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'user_management' %}" class="back-btn">← Back to Users</a>
+
+{% endblock %}

@@ -1,0 +1,222 @@
+{% extends "complaints/base_admin.html" %}
+
+{% block dashboard_content %}
+{% load static %}
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary: #4318FF;
+        --primary-hover: #3311CC;
+        --bg-subtle: #F4F7FE;
+        --text-dark: #1B2559;
+        --text-grey: #A3AED0;
+    }
+
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-subtle); }
+
+    .add-staff-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 20px;
+    }
+
+    .form-card {
+        background: white;
+        padding: 40px;
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.04);
+        width: 100%;
+        max-width: 550px;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .form-header h2 {
+        color: var(--text-dark);
+        font-weight: 800;
+        font-size: 1.75rem;
+        margin-bottom: 10px;
+    }
+
+    .form-header p {
+        color: var(--text-grey);
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+        margin-left: 4px;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    .input-wrapper i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-grey);
+        transition: 0.3s;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 14px 16px 14px 45px;
+        border-radius: 14px;
+        border: 1px solid #E9EDF7;
+        background: #F4F7FE;
+        font-size: 0.95rem;
+        font-weight: 600;
+        outline: none;
+        transition: 0.3s;
+        color: var(--text-dark);
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(67, 24, 255, 0.1);
+    }
+
+    .form-control:focus + i {
+        color: var(--primary);
+    }
+
+    .btn-container {
+        display: flex;
+        gap: 12px;
+        margin-top: 30px;
+    }
+
+    .btn-create {
+        flex: 2;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-create:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(67, 24, 255, 0.2);
+    }
+
+    .btn-cancel {
+        flex: 1;
+        background: #F4F7FE;
+        color: var(--text-grey);
+        text-decoration: none;
+        padding: 14px;
+        border-radius: 14px;
+        font-weight: 700;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .btn-cancel:hover {
+        background: #E2E8F0;
+        color: var(--text-dark);
+    }
+
+    .info-box {
+        background: rgba(67, 24, 255, 0.05);
+        border-radius: 14px;
+        padding: 15px;
+        margin-top: 25px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .info-box i { color: var(--primary); font-size: 1.2rem; }
+    .info-box p { 
+        margin: 0; 
+        font-size: 0.8rem; 
+        color: var(--primary); 
+        font-weight: 600; 
+        line-height: 1.4;
+    }
+</style>
+
+<div class="add-staff-container">
+    <div class="form-card">
+        <div class="form-header">
+            <i class="fas fa-user-plus" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px;"></i>
+            <h2>Create Staff Account</h2>
+            <p>Onboard a new member to your organization team</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>Username</label>
+                <div class="input-wrapper">
+                    <input type="text" name="username" class="form-control" placeholder="e.g. john_staff" required>
+                    <i class="fas fa-at"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                <div class="input-wrapper">
+                    <input type="email" name="email" class="form-control" placeholder="staff@company.com" required>
+                    <i class="fas fa-envelope"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Initial Password</label>
+                <div class="input-wrapper">
+                    <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <i class="fas fa-shield-halved"></i>
+                <p>This account will be automatically granted staff permissions for <strong>{{ request.user.organization.name }}</strong>.</p>
+            </div>
+
+            <div class="btn-container">
+                <button type="submit" class="btn-create">
+                    Create Account <i class="fas fa-arrow-right"></i>
+                </button>
+                <a href="{% url 'staff_management' %}" class="btn-cancel">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

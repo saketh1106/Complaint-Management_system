@@ -1,0 +1,38 @@
+<!-- templates/complaints/staff_update_status_inline.html -->
+{% extends "complaints/base_staff.html" %}
+{% block content %}
+<h3>Update Complaint Status Inline</h3>
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Complaint Title</th>
+            <th>Current Status</th>
+            <th>Update Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for complaint in assigned_complaints %}
+        <tr>
+            <td>{{ complaint.title }}</td>
+            <td>{{ complaint.status }}</td>
+            <td>
+                <form method="post" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="complaint_id" value="{{ complaint.id }}">
+                    <select name="status" class="form-select">
+                        <option value="Pending" {% if complaint.status=="Pending" %}selected{% endif %}>Pending</option>
+                        <option value="In Progress" {% if complaint.status=="In Progress" %}selected{% endif %}>In Progress</option>
+                        <option value="Resolved" {% if complaint.status=="Resolved" %}selected{% endif %}>Resolved</option>
+                    </select>
+                    <button type="submit" class="btn btn-success btn-sm">Update</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3" class="text-center">No assigned complaints yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,251 @@
+{% extends 'complaints/base.html' %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --danger-red: #E31A1A;
+        --navy: #1B2559;
+        --grey: #A3AED0;
+        --bg: #F4F7FE;
+        --brand: #4318FF;
+    }
+
+    body { 
+        background-color: var(--bg); 
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: var(--navy);
+    }
+
+    .form-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 60px 20px;
+    }
+
+    .complaint-card {
+        background: #FFFFFF;
+        width: 100%;
+        max-width: 650px;
+        padding: 50px;
+        border-radius: 35px;
+        box-shadow: 0px 45px 120px rgba(0, 0, 0, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .header-section { 
+        margin-bottom: 45px;
+        border-left: 6px solid var(--danger-red);
+        padding-left: 25px;
+    }
+    
+    .header-section h2 { 
+        font-weight: 800; 
+        font-size: 2.2rem; 
+        letter-spacing: -1.5px; 
+        margin: 0;
+        color: var(--navy);
+    }
+
+    .header-section p { 
+        color: var(--grey); 
+        font-weight: 600; 
+        margin-top: 5px; 
+        font-size: 1rem;
+    }
+
+    /* --- INPUT BOXES --- */
+    .input-field { margin-bottom: 35px; }
+    
+    .input-label {
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--navy);
+        margin-bottom: 12px;
+        display: block;
+        opacity: 0.7;
+    }
+
+    .custom-input {
+        width: 100%;
+        background: #F8FAFC;
+        border: 2px solid #E9EDF7;
+        padding: 20px;
+        border-radius: 18px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--navy);
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-sizing: border-box;
+    }
+
+    .custom-input:focus {
+        outline: none;
+        border-color: var(--brand);
+        background: #FFFFFF;
+        box-shadow: 0px 12px 24px rgba(67, 24, 255, 0.06);
+    }
+
+    /* --- URGENCY SWITCHER --- */
+    .urgency-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .priority-select {
+        display: flex;
+        background: #F4F7FE;
+        padding: 8px;
+        border-radius: 20px;
+        gap: 5px;
+    }
+
+    .priority-select label {
+        flex: 1;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .priority-select input { display: none; }
+
+    .priority-select span {
+        display: block;
+        padding: 12px;
+        text-align: center;
+        font-weight: 800;
+        font-size: 0.85rem;
+        border-radius: 15px;
+        color: var(--grey);
+        transition: 0.2s;
+    }
+
+    .priority-select input:checked + span {
+        background: white;
+        color: var(--brand);
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    /* --- CLEAN FILE ICON --- */
+    .file-drop {
+        border: 2px dashed #CBD5E0;
+        border-radius: 20px;
+        padding: 12px;
+        text-align: center;
+        background: #FDFDFD;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        height: 58px; /* Matching the height of the priority box */
+    }
+
+    .file-drop:hover {
+        border-color: var(--navy);
+        background: #F8FAFC;
+    }
+
+    .file-drop i { font-size: 1.2rem; color: var(--navy); }
+    .file-drop span { font-weight: 700; font-size: 0.9rem; color: var(--navy); }
+
+    /* --- ACTION BUTTON --- */
+    .submit-complaint-btn {
+        width: 100%;
+        background: var(--navy);
+        color: white;
+        border: none;
+        padding: 22px;
+        border-radius: 24px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0px 20px 40px rgba(27, 37, 89, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .submit-complaint-btn:hover {
+        background: #000;
+        transform: translateY(-2px);
+    }
+
+    .cancel-btn {
+        display: block;
+        text-align: center;
+        margin-top: 25px;
+        color: var(--grey);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+</style>
+
+<div class="form-wrapper">
+    <div class="complaint-card">
+        <header class="header-section">
+            <h2>File a Complaint</h2>
+            <p>Report an issue for immediate review.</p>
+        </header>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="input-field">
+                <label class="input-label">Complaint Subject</label>
+                <input type="text" name="title" class="custom-input" placeholder="What is the main issue?" required>
+            </div>
+
+            <div class="input-field">
+                <label class="input-label">Detailed Statement</label>
+                <textarea name="description" class="custom-input" style="min-height: 150px; resize: none;" placeholder="Explain exactly what happened..."></textarea>
+            </div>
+
+            <div class="urgency-row">
+                <div>
+                    <label class="input-label">Urgency Level</label>
+                    <div class="priority-select">
+                        <label>
+                            <input type="radio" name="priority" value="Low">
+                            <span>Low</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="priority" value="Medium" checked>
+                            <span>Mid</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="priority" value="High">
+                            <span style="color: var(--danger-red) !important;">High</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="input-label">Evidence / Files</label>
+                    <label class="file-drop">
+                        <input type="file" name="file" style="display: none;" onchange="document.getElementById('file-name').innerText = 'File selected'">
+                        <i class="fa-solid fa-file-circle-plus"></i>
+                        <span id="file-name">Attach Proof</span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-complaint-btn">
+                Submit Complaint <i class="fa-solid fa-arrow-right"></i>
+            </button>
+
+            <a href="{% url 'user_dashboard' %}" class="cancel-btn">Discard Draft</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

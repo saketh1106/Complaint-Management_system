@@ -1,0 +1,102 @@
+{% extends "complaints/base_admin.html" %}
+
+{% block dashboard_content %}
+{% load static %}
+
+<style>
+/* Form container */
+.staff-form-container {
+    max-width: 500px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-top: 20px;
+}
+
+/* Labels & inputs */
+.staff-form-container label {
+    font-weight: 500;
+    margin-bottom: 6px;
+    display: block;
+    color: #374151;
+}
+
+/* This targets the Django-generated inputs */
+.staff-form-container input,
+.staff-form-container select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    box-sizing: border-box; /* Ensures padding doesn't break width */
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary { background: #4F46E5; color: white; }
+.btn-primary:hover { background: #4338CA; }
+
+.btn-secondary { background: #6B7280; color: white; }
+.btn-secondary:hover { background: #4B5563; }
+
+.errorlist {
+    color: #EF4444;
+    margin: 0 0 10px 0;
+    list-style: none;
+    padding: 0;
+    font-size: 0.9rem;
+}
+</style>
+
+<div style="margin-bottom: 20px;">
+    <h2 style="color: #111827;">Add New Staff Member</h2>
+    <p style="color: #6B7280;">Create a staff account for your organization.</p>
+</div>
+
+<div class="staff-form-container">
+    <form method="POST">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="errorlist">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        {% for field in form %}
+            <div style="margin-bottom: 10px;">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="errorlist">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+                {% if field.help_text %}
+                    <small style="color: #9CA3AF; display: block; margin-bottom: 10px;">{{ field.help_text|safe }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div style="display:flex; gap: 10px; margin-top: 10px;">
+            <button type="submit" class="btn btn-primary">Create Staff Account</button>
+            <a href="{% url 'staff_management' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

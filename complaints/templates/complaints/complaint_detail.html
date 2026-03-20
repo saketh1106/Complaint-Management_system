@@ -1,0 +1,193 @@
+{% extends base_template %}
+
+{% block dashboard_content %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --bg-shade: #f0f2f5;
+        --glass-border: rgba(226, 232, 240, 0.8);
+        --card-shadow: 0 10px 40px rgba(0,0,0,0.06);
+        --primary-dark: #1e293b;
+    }
+
+    /* Centers the entire page content */
+    .page-wrapper {
+        max-width: 1000px;
+        margin: 50px auto;
+        padding: 0 20px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Rounded Header Section */
+    .detail-header-section {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        padding: 45px;
+        color: white;
+        border-radius: 24px 24px 0 0;
+        box-shadow: var(--card-shadow);
+    }
+
+    /* Main Ticket Card Wrapper */
+    .ticket-card {
+        background: white;
+        border-radius: 0 0 24px 24px;
+        border: 1px solid var(--glass-border);
+        border-top: none;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    /* Left Side - Main Content */
+    .main-info { 
+        padding: 50px; 
+        flex: 1;
+        min-width: 320px;
+    }
+    
+    .section-title {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+        display: block;
+    }
+
+    .complaint-text {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #334155;
+        white-space: pre-wrap; /* Keeps line breaks from the textarea */
+    }
+
+    /* Right Side - Sidebar Meta */
+    .meta-sidebar {
+        background: #f8fafc;
+        padding: 50px 40px;
+        border-left: 1px solid #f1f5f9;
+        width: 320px;
+    }
+
+    .meta-item { margin-bottom: 30px; }
+    .meta-label { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+    .meta-value { font-size: 1rem; font-weight: 600; color: #1e293b; margin-top: 5px; }
+
+    /* Modern Badges */
+    .status-pill-large {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 18px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+    .status-pending { background: #fffbeb; color: #92400e; border: 1px solid #fef3c7; }
+    .status-progress { background: #eef2ff; color: #3730a3; border: 1px solid #e0e7ff; }
+    .status-resolved { background: #f0fdf4; color: #166534; border: 1px solid #dcfce7; }
+
+    .btn-back {
+        color: rgba(255,255,255,0.6);
+        text-decoration: none;
+        transition: 0.3s;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        display: inline-block;
+    }
+    .btn-back:hover { color: white; transform: translateX(-3px); }
+
+    /* Timeline Styling */
+    .timeline-item {
+        padding: 15px;
+        border-left: 3px solid #4318FF;
+        background: #f4f7fe;
+        border-radius: 0 12px 12px 0;
+    }
+
+    @media (max-width: 768px) {
+        .meta-sidebar { width: 100%; border-left: none; border-top: 1px solid #f1f5f9; }
+        .page-wrapper { margin: 20px auto; }
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="detail-header-section">
+        <a href="{% url 'user_dashboard' %}" class="btn-back">
+            <i class="fas fa-arrow-left me-2"></i> Return to Dashboard
+        </a>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-4 mt-2">
+            <div>
+                <h1 class="fw-bold m-0" style="font-size: 2.2rem; letter-spacing: -1.5px;">{{ complaint.title }}</h1>
+                <p class="mb-0 mt-1 opacity-75 fw-medium">Reference ID: <span class="text-white">#{{ complaint.id }}</span></p>
+            </div>
+            <div class="status-pill-large 
+                {% if complaint.status == 'Pending' %}status-pending
+                {% elif complaint.status == 'In Progress' %}status-progress
+                {% else %}status-resolved{% endif %}">
+                <i class="fas fa-circle me-2" style="font-size: 7px;"></i> {{ complaint.status }}
+            </div>
+        </div>
+    </div>
+
+    <div class="ticket-card">
+        <div class="main-info">
+            <span class="section-title">Case Description</span>
+            <div class="complaint-text">
+                {{ complaint.description }}
+            </div>
+            
+            <div style="margin-top: 60px;">
+                <span class="section-title">Timeline & Activity</span>
+                <div class="timeline-item">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-bold text-dark small">Ticket Successfully Logged</span>
+                        <span class="text-muted" style="font-size: 11px;">{{ complaint.created_at|date:"M d, Y | H:i" }}</span>
+                    </div>
+                    <p class="text-muted small mb-0">The case has been submitted to <b>{{ complaint.user.organization.name }}</b> and is awaiting review by staff.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="meta-sidebar">
+            <div class="meta-item">
+                <div class="meta-label">Submitted By</div>
+                <div class="meta-value">{{ complaint.user.username|title }}</div>
+            </div>
+
+            <div class="meta-item">
+                <div class="meta-label">Organization</div>
+                <div class="meta-value">{{ complaint.user.organization.name }}</div>
+            </div>
+
+            <div class="meta-item">
+                <div class="meta-label">Priority</div>
+                <div class="meta-value">
+                    {% if complaint.priority == 'High' %}
+                        <span class="text-danger fw-bold"><i class="fas fa-bolt me-1"></i> High Priority</span>
+                    {% else %}
+                        <span class="text-dark">{{ complaint.priority|default:"Normal" }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="meta-item">
+                <div class="meta-label">Official Timestamp</div>
+                <div class="meta-value">{{ complaint.created_at|date:"D, M d, Y" }}</div>
+            </div>
+
+            <div class="mt-5">
+                <button onclick="window.print()" class="btn btn-dark w-100 rounded-pill py-2 shadow-sm fw-bold border-0" style="background: #1e293b;">
+                    <i class="fas fa-print me-2"></i> Print Case PDF
+                </button>
+                <p class="text-center text-muted tiny mt-3" style="font-size: 10px;">Generated by CMS Support Portal</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

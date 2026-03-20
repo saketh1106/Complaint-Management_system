@@ -1,0 +1,45 @@
+<!--assign_staff-->
+{% extends 'complaints/base.html' %}
+
+{% block dashboard_content %}
+<h2>Assign Staff to Complaint</h2>
+
+<!-- Complaint Info -->
+<div class="card" style="margin-bottom:20px;">
+    <p><strong>Complaint ID:</strong> {{ complaint.id }}</p>
+    <p><strong>Title:</strong> {{ complaint.title }}</p>
+    <p><strong>Description:</strong> {{ complaint.description }}</p>
+    <p><strong>Status:</strong> {{ complaint.status }}</p>
+</div>
+
+<!-- Staff Table -->
+<h3>Select Staff to Assign</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Staff Name</th>
+            <th>Current Assigned Complaints</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for staff in staff_users %}
+        <tr>
+            <td>{{ staff.username }}</td>
+            <td>{{ staff.complaint_set.count }}</td>
+            <td>
+                <form method="POST" style="margin:0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="staff_id" value="{{ staff.id }}">
+                    <button type="submit">Assign</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No staff available</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

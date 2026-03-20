@@ -1,0 +1,15 @@
+<!-- templates/complaints/user_stats.html -->
+<div class="card mt-3">
+    <div class="card-header">
+        {{ user_stats.user.username }} - Complaint Stats
+    </div>
+    <div class="card-body">
+        <p>Total Complaints: {{ user_stats.total_complaints }}</p>
+        {% if user_stats.last_complaint_id %}
+            <p>Last Complaint ID: {{ user_stats.last_complaint_id }}</p>
+            <p>Last Complaint Date: {{ user_stats.last_complaint_date|date:"d M Y H:i" }}</p>
+        {% else %}
+            <p>No complaints submitted yet.</p>
+        {% endif %}
+    </div>
+</div>

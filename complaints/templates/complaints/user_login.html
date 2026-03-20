@@ -1,0 +1,206 @@
+{% extends "complaints/base.html" %}
+{% block auth_content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary: #4318FF;
+        --primary-hover: #3311CC;
+        --bg-body: #F4F7FE;
+        --text-dark: #1B2559;
+        --text-grey: #A3AED0;
+    }
+
+    body { 
+        font-family: 'Plus Jakarta Sans', sans-serif; 
+        background-color: var(--bg-body); 
+    }
+
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 85vh;
+        padding: 20px;
+    }
+
+    .login-card {
+        background: white;
+        padding: 40px;
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.04);
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .login-header { text-align: center; margin-bottom: 30px; }
+    .login-header h2 { color: var(--text-dark); font-weight: 800; font-size: 1.75rem; margin-bottom: 8px; }
+    .login-header p { color: var(--text-grey); font-weight: 500; font-size: 0.95rem; }
+
+    /* Alert Styling */
+    .alert-container { margin-bottom: 20px; }
+    .alert {
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .alert-error { background: #FFF5F5; color: #E53E3E; border: 1px solid #FEB2B2; }
+    .alert-success { background: #F0FFF4; color: #38A169; border: 1px solid #9AE6B4; }
+
+    /* Form Styling */
+    .form-group { margin-bottom: 20px; position: relative; }
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+        margin-left: 4px;
+    }
+
+    .input-wrapper { position: relative; }
+    .input-wrapper i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-grey);
+        transition: 0.3s;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 14px 16px 14px 45px;
+        border-radius: 14px;
+        border: 1px solid #E9EDF7;
+        background: #F4F7FE;
+        font-size: 0.95rem;
+        font-weight: 500;
+        outline: none;
+        transition: 0.3s;
+        color: var(--text-dark);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(67, 24, 255, 0.1);
+    }
+
+    .form-control:focus + i { color: var(--primary); }
+
+    /* Custom Select */
+    select.form-control {
+        appearance: none;
+        cursor: pointer;
+    }
+
+    /* Button */
+    .btn-login {
+        width: 100%;
+        padding: 16px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 10px;
+        box-shadow: 0 10px 20px rgba(67, 24, 255, 0.15);
+    }
+
+    .btn-login:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(67, 24, 255, 0.25);
+    }
+
+    .btn-login:active { transform: translateY(0); }
+
+    .register-link {
+        text-align: center;
+        margin-top: 25px;
+        font-size: 0.9rem;
+        color: var(--text-grey);
+    }
+    .register-link a { color: var(--primary); text-decoration: none; font-weight: 700; }
+    .register-link a:hover { text-decoration: underline; }
+    .back-link {
+        text-align: center;
+        margin-top: 25px;
+        font-size: 0.9rem;
+    }
+    .back-link a { color: var(--text-grey); text-decoration: none; font-weight: 600; transition: 0.2s; }
+    .back-link a:hover { color: var(--primary-staff); }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        
+        <div class="login-header">
+            <h2>User Login</h2>
+            <p>Enter your details to track your complaints</p>
+        </div>
+
+        {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                <i class="fas {% if message.tags == 'error' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>Username</label>
+                <div class="input-wrapper">
+                    <input type="text" name="username" class="form-control" placeholder="Enter your username" required>
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <div class="input-wrapper">
+                    <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Organization</label>
+                <div class="input-wrapper">
+                    <select name="organization" class="form-control" required>
+                        <option value="" disabled selected>Select your organization</option>
+                        {% for org in organizations %}
+                        <option value="{{ org.id }}">{{ org.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <i class="fas fa-building"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">
+                Sign In <i class="fas fa-arrow-right ms-2" style="font-size: 0.8rem;"></i>
+            </button>
+            <div class="back-link">
+            <a href="{% url 'login_choice' %}"><i class="fas fa-arrow-left me-1"></i> Back to Role Selection</a>
+        </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

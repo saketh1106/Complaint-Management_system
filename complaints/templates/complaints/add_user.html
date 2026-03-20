@@ -1,0 +1,230 @@
+{% extends "complaints/base_admin.html" %}
+
+{% block dashboard_content %}
+{% load static %}
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary: #4318FF;
+        --primary-hover: #3311CC;
+        --text-dark: #1B2559;
+        --text-grey: #A3AED0;
+        --bg-subtle: #F4F7FE;
+    }
+
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-subtle); }
+
+    .onboarding-container {
+        display: flex;
+        justify-content: center;
+        padding: 50px 20px;
+    }
+
+    .user-form-card {
+        background: white;
+        padding: 40px;
+        border-radius: 28px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.04);
+        width: 100%;
+        max-width: 500px;
+        border: 1px solid rgba(255,255,255,0.8);
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .org-pill {
+        display: inline-block;
+        background: rgba(67, 24, 255, 0.08);
+        color: var(--primary);
+        padding: 5px 15px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+    }
+
+    .form-header h2 {
+        color: var(--text-dark);
+        font-weight: 800;
+        font-size: 1.8rem;
+        margin: 0;
+    }
+
+    .form-header p {
+        color: var(--text-grey);
+        font-size: 0.9rem;
+        margin-top: 8px;
+    }
+
+    .input-group {
+        margin-bottom: 22px;
+    }
+
+    .input-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+        padding-left: 5px;
+    }
+
+    .field-container {
+        position: relative;
+    }
+
+    .field-container i {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-grey);
+        font-size: 1rem;
+        transition: 0.3s;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 15px 15px 15px 48px;
+        border-radius: 16px;
+        border: 1px solid #E9EDF7;
+        background: #F4F7FE;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        outline: none;
+        transition: 0.3s;
+        box-sizing: border-box;
+    }
+
+    .form-input:focus {
+        background: white;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(67, 24, 255, 0.1);
+    }
+
+    .form-input:focus + i {
+        color: var(--primary);
+    }
+
+    .action-row {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 30px;
+    }
+
+    .btn-create {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 16px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .btn-create:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(67, 24, 255, 0.2);
+    }
+
+    .btn-cancel {
+        background: transparent;
+        color: var(--text-grey);
+        text-decoration: none;
+        padding: 12px;
+        border-radius: 16px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-align: center;
+        transition: 0.2s;
+    }
+
+    .btn-cancel:hover {
+        color: var(--text-dark);
+        background: #F4F7FE;
+    }
+
+    .security-note {
+        margin-top: 20px;
+        padding: 12px;
+        border-radius: 12px;
+        background: #FFF9F0;
+        border: 1px solid #FFE4BC;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .security-note i { color: #FFA000; font-size: 0.9rem; margin-top: 2px; }
+    .security-note span { font-size: 0.75rem; color: #966100; font-weight: 500; line-height: 1.4; }
+</style>
+
+<div class="onboarding-container">
+    <div class="user-form-card">
+        <div class="form-header">
+            <span class="org-pill">{{ request.user.organization.name }}</span>
+            <h2>Add New User</h2>
+            <p>Onboard a new client to the complaint system</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="input-group">
+                <label for="username">Preferred Username</label>
+                <div class="field-container">
+                    <input type="text" name="username" id="username" class="form-input" placeholder="e.g. alex_smith" required>
+                    <i class="fas fa-id-card"></i>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="email">Email Address</label>
+                <div class="field-container">
+                    <input type="email" name="email" id="email" class="form-input" placeholder="alex@example.com" required>
+                    <i class="fas fa-envelope"></i>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="password">Temporary Password</label>
+                <div class="field-container">
+                    <input type="password" name="password" id="password" class="form-input" placeholder="••••••••" required>
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+            </div>
+
+            <div class="security-note">
+                <i class="fas fa-info-circle"></i>
+                <span>Users can change their password from their profile settings once they log in for the first time.</span>
+            </div>
+
+            <div class="action-row">
+                <button type="submit" class="btn-create">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+                <a href="{% url 'user_management' %}" class="btn-cancel">
+                    Go Back to Management
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

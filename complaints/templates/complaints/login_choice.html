@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome | Complaint Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #4318FF;
+            --secondary: #707eff;
+            --dark: #1B2559;
+            --grey: #A3AED0;
+            --bg: #F4F7FE;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .main-container {
+            display: flex;
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            min-height: 600px;
+        }
+
+        /* Left Side - Project Info */
+        .info-side {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 50px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .info-side h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 20px; line-height: 1.2; }
+        .info-side p { font-size: 1rem; opacity: 0.9; line-height: 1.6; margin-bottom: 30px; }
+
+        .feature-list { list-style: none; }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+        .feature-item i { font-size: 1.2rem; width: 30px; text-align: center; }
+        .feature-item span { font-weight: 600; font-size: 0.9rem; }
+
+        /* Right Side - Login Choice */
+        .login-side {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: white;
+        }
+
+        .login-side h2 { color: var(--dark); font-size: 1.8rem; font-weight: 700; margin-bottom: 10px; }
+        .login-side p { color: var(--grey); margin-bottom: 35px; font-weight: 500; }
+
+        .choice-btn {
+            width: 100%;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #E9EDF7;
+            border-radius: 20px;
+            background: white;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+        }
+
+        .choice-btn .icon-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: 0.3s;
+        }
+
+        .user-icon { background: rgba(67, 24, 255, 0.1); color: var(--primary); }
+        .staff-icon { background: rgba(1, 181, 116, 0.1); color: #01B574; }
+
+        .btn-text h4 { color: var(--dark); font-weight: 700; font-size: 1.1rem; }
+        .btn-text span { color: var(--grey); font-size: 0.85rem; }
+
+        .choice-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(67, 24, 255, 0.1);
+        }
+
+        .choice-btn:hover .icon-box { transform: scale(1.1); }
+
+        .footer-note {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--grey);
+        }
+
+        .footer-note a { color: var(--primary); text-decoration: none; font-weight: 700; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main-container { flex-direction: column; border-radius: 20px; }
+            .info-side { padding: 30px; text-align: center; }
+            .feature-list { display: none; }
+            .info-side h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="info-side">
+            <h1>Resolve Issues <br> Faster Than Ever.</h1>
+            <p>Our Complaint Management System bridges the gap between users and staff, ensuring every concern is heard, tracked, and resolved in real-time.</p>
+            
+            <div class="feature-list">
+                <div class="feature-item">
+                    <i class="fas fa-bolt"></i>
+                    <span>Real-time Chat Support</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Secure Organization Data</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Detailed Status Tracking</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-side">
+            <h2>Getting Started</h2>
+            <p>Please select your role to continue</p>
+
+            <button class="choice-btn" onclick="window.location.href='{% url 'user_login' %}'">
+                <div class="icon-box user-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="btn-text">
+                    <h4>Login as User</h4>
+                    <span>Report issues and track solutions</span>
+                </div>
+                <i class="fas fa-chevron-right" style="margin-left: auto; color: #cbd5e0;"></i>
+            </button>
+
+            <button class="choice-btn" onclick="window.location.href='{% url 'staff_login' %}'">
+                <div class="icon-box staff-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="btn-text">
+                    <h4>Login as Staff</h4>
+                    <span>Manage tickets and help users</span>
+                </div>
+                <i class="fas fa-chevron-right" style="margin-left: auto; color: #cbd5e0;"></i>
+            </button>
+
+            <div class="footer-note">
+                Don't have an account? <a href="{% url 'superadmin_register' %}">Register Now</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

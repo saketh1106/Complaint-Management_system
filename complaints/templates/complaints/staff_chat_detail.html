@@ -1,0 +1,28 @@
+{% extends "complaints/base_staff.html" %}
+
+{% block dashboard_content %}
+<h3>Chat for Complaint #{{ complaint.complaint_id }} - {{ complaint.title }}</h3>
+
+<div style="height:300px; overflow-y:auto; border:1px solid #ccc; padding:10px; margin-bottom:15px;">
+    {% for msg in messages %}
+        {% if msg.sender.is_superuser %}
+            <p style="color: #6366F1;"><strong>System/Admin:</strong> {{ msg.content }}</p>
+        {% else %}
+            <p><strong>{{ msg.sender.username }}:</strong> {{ msg.content }}</p>
+        {% endif %}
+    {% empty %}
+        <p>No messages yet.</p>
+    {% endfor %}
+</div>
+
+{% if complaint.is_chat_active %}
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="message" placeholder="Type message..." required style="width:80%; padding:8px; border-radius:5px; border:1px solid #ccc;">
+    <button type="submit" style="padding:8px 12px; border-radius:5px; background:#6366F1; color:white; border:none;">Send</button>
+</form>
+{% else %}
+<p class="text-muted small">Chat is closed for this complaint.</p>
+{% endif %}
+
+{% endblock %}

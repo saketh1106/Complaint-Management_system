@@ -1,0 +1,67 @@
+{% extends "complaints/base.html" %}
+
+{% block dashboard_content %}
+<div style="display:flex; justify-content:center; align-items:center; min-height:80vh; padding: 20px;">
+    <div style="width: 100%; max-width: 450px; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+        
+        <h2 style="color:#4F46E5; text-align:center; margin-bottom:10px;">Create Account</h2>
+        <p style="text-align:center; color:#64748B; margin-bottom:30px; font-size:0.9rem;">Join the Complaint Management System</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div style="background: #FEE2E2; color: #B91C1C; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 0.85rem; text-align: center;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-weight:500; margin-bottom:5px; font-size:0.9rem;">Username</label>
+                <input type="text" name="username" placeholder="Choose a username" required 
+                       style="width:100%; padding:12px; border:1px solid #E2E8F0; border-radius:8px;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-weight:500; margin-bottom:5px; font-size:0.9rem;">Email Address</label>
+                <input type="email" name="email" placeholder="email@example.com" required 
+                       style="width:100%; padding:12px; border:1px solid #E2E8F0; border-radius:8px;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-weight:500; margin-bottom:5px; font-size:0.9rem;">Password</label>
+                <input type="password" name="password1" placeholder="Create password" required 
+                       style="width:100%; padding:12px; border:1px solid #E2E8F0; border-radius:8px;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-weight:500; margin-bottom:5px; font-size:0.9rem;">Confirm Password</label>
+                <input type="password" name="password2" placeholder="Repeat password" required 
+                       style="width:100%; padding:12px; border:1px solid #E2E8F0; border-radius:8px;">
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label style="display:block; font-weight:500; margin-bottom:5px; font-size:0.9rem;">Organization</label>
+                <select name="organization" required style="width:100%; padding:12px; border:1px solid #E2E8F0; border-radius:8px; background:white;">
+                    <option value="" disabled selected>Select your organization</option>
+                    {% for org in organizations %}
+                        <option value="{{ org.id }}">{{ org.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" style="width:100%; background:#4F46E5; color:white; padding:14px; border:none; border-radius:8px; font-weight:600; cursor:pointer; transition:0.3s;">
+                Register Account
+            </button>
+        </form>
+
+        <div style="margin-top:25px; text-align:center; border-top:1px solid #F1F5F9; padding-top:20px;">
+            <p style="font-size:0.9rem; color:#64748B;">
+                Already have an account? <a href="{% url 'login_choice' %}" style="color:#4F46E5; text-decoration:none; font-weight:600;">Login here</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
