@@ -1,193 +1,243 @@
 {% extends base_template %}
 
 {% block dashboard_content %}
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+{% load static %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
     :root {
-        --bg-shade: #f0f2f5;
-        --glass-border: rgba(226, 232, 240, 0.8);
-        --card-shadow: 0 10px 40px rgba(0,0,0,0.06);
-        --primary-dark: #1e293b;
+        --primary: #4318FF;
+        --primary-bg: #F4F7FE;
+        --dark: #1B2559;
+        --grey: #A3AED0;
+        --white: #ffffff;
     }
 
-    /* Centers the entire page content */
-    .page-wrapper {
-        max-width: 1000px;
-        margin: 50px auto;
-        padding: 0 20px;
-        font-family: 'Inter', sans-serif;
-    }
+    body { background-color: var(--primary-bg); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--dark); }
 
-    /* Rounded Header Section */
-    .detail-header-section {
-        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-        padding: 45px;
-        color: white;
-        border-radius: 24px 24px 0 0;
-        box-shadow: var(--card-shadow);
-    }
+    .page-container { max-width: 1100px; margin: 40px auto; padding: 0 24px; }
 
-    /* Main Ticket Card Wrapper */
-    .ticket-card {
-        background: white;
-        border-radius: 0 0 24px 24px;
-        border: 1px solid var(--glass-border);
-        border-top: none;
-        box-shadow: var(--card-shadow);
-        overflow: hidden;
+    /* --- TOP NAVIGATION --- */
+    .action-header {
         display: flex;
-        flex-wrap: wrap;
-    }
-
-    /* Left Side - Main Content */
-    .main-info { 
-        padding: 50px; 
-        flex: 1;
-        min-width: 320px;
-    }
-    
-    .section-title {
-        font-size: 0.7rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        color: #94a3b8;
-        letter-spacing: 2px;
-        margin-bottom: 20px;
-        display: block;
-    }
-
-    .complaint-text {
-        font-size: 1.1rem;
-        line-height: 1.8;
-        color: #334155;
-        white-space: pre-wrap; /* Keeps line breaks from the textarea */
-    }
-
-    /* Right Side - Sidebar Meta */
-    .meta-sidebar {
-        background: #f8fafc;
-        padding: 50px 40px;
-        border-left: 1px solid #f1f5f9;
-        width: 320px;
-    }
-
-    .meta-item { margin-bottom: 30px; }
-    .meta-label { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-    .meta-value { font-size: 1rem; font-weight: 600; color: #1e293b; margin-top: 5px; }
-
-    /* Modern Badges */
-    .status-pill-large {
-        display: inline-flex;
+        justify-content: space-between;
         align-items: center;
-        padding: 8px 18px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 0.8rem;
-        letter-spacing: 0.5px;
+        margin-bottom: 30px;
     }
-    .status-pending { background: #fffbeb; color: #92400e; border: 1px solid #fef3c7; }
-    .status-progress { background: #eef2ff; color: #3730a3; border: 1px solid #e0e7ff; }
-    .status-resolved { background: #f0fdf4; color: #166534; border: 1px solid #dcfce7; }
 
     .btn-back {
-        color: rgba(255,255,255,0.6);
-        text-decoration: none;
-        transition: 0.3s;
-        font-size: 0.85rem;
-        font-weight: 600;
-        margin-bottom: 15px;
-        display: inline-block;
+        text-decoration: none; color: var(--grey); font-weight: 700; font-size: 0.9rem;
+        transition: 0.3s; display: flex; align-items: center; gap: 8px;
     }
-    .btn-back:hover { color: white; transform: translateX(-3px); }
+    .btn-back:hover { color: var(--primary); transform: translateX(-5px); }
 
-    /* Timeline Styling */
-    .timeline-item {
-        padding: 15px;
-        border-left: 3px solid #4318FF;
-        background: #f4f7fe;
-        border-radius: 0 12px 12px 0;
+    .btn-print {
+        background: var(--white); color: var(--dark); border: none;
+        padding: 12px 24px; border-radius: 16px; font-weight: 800;
+        box-shadow: 0 10px 20px rgba(112, 144, 176, 0.12);
+        cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px;
+    }
+    .btn-print:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(112, 144, 176, 0.2); }
+
+    /* --- MAIN CONTENT CARD --- */
+    .glass-card {
+        background: var(--white);
+        border-radius: 30px;
+        padding: 0;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 40px 80px rgba(112, 144, 176, 0.08);
     }
 
-    @media (max-width: 768px) {
-        .meta-sidebar { width: 100%; border-left: none; border-top: 1px solid #f1f5f9; }
-        .page-wrapper { margin: 20px auto; }
+    /* HEADER SECTION */
+    .card-banner {
+        padding: 60px;
+        background: linear-gradient(135deg, #1B2559 0%, #4318FF 100%);
+        color: white;
+        position: relative;
+    }
+
+    .status-chip {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        padding: 8px 20px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* DATA LAYOUT */
+    .content-grid { display: grid; grid-template-columns: 1fr 350px; }
+    .main-panel { padding: 60px; }
+    .side-panel { padding: 60px; background: #F8FAFC; border-left: 1px solid #EDF2F7; }
+
+    /* TYPOGRAPHY */
+    .label-caps {
+        font-size: 0.7rem; font-weight: 800; color: var(--primary);
+        text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; display: block;
+    }
+
+    .description-text {
+        font-size: 1.15rem; line-height: 1.9; color: #4A5568;
+        background: #fcfcfd; padding: 30px; border-radius: 20px;
+        border: 1px solid #f1f4f9; margin-bottom: 40px;
+    }
+
+    /* ATTACHMENT LIST */
+    .file-card {
+        display: flex; align-items: center; gap: 20px; padding: 25px;
+        background: var(--white); border: 1px solid #E9EDF7; border-radius: 24px;
+        transition: 0.3s; text-decoration: none; color: var(--dark);
+    }
+    .file-card:hover { border-color: var(--primary); transform: scale(1.02); }
+
+    .icon-box {
+        width: 56px; height: 56px; background: #F4F7FE; border-radius: 16px;
+        display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.4rem;
+    }
+
+    /* SIDEBAR METRICS */
+    .meta-group { margin-bottom: 35px; }
+    .meta-title { font-size: 0.7rem; font-weight: 800; color: var(--grey); text-transform: uppercase; margin-bottom: 8px; display: block; }
+    .meta-value { font-weight: 700; font-size: 1rem; color: var(--dark); display: flex; align-items: center; gap: 8px; }
+
+    /* --- PRINT ENGINE --- */
+    @media print {
+        nav, aside, .sidebar, #sidebar, .left-nav, .top-nav, .action-header { 
+            display: none !important; 
+        }
+        main, .content-wrapper, .dashboard-content, .page-container {
+            margin: 0 !important;
+            padding: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+        }
+        .glass-card { border: none; box-shadow: none; border-radius: 0; }
+        .card-banner { background: #000 !important; color: #fff !important; padding: 40px; }
+        .content-grid { grid-template-columns: 1fr; }
+        .side-panel { background: #fff !important; border-top: 1px solid #eee; padding-top: 40px; }
+        .main-panel { padding: 40px; }
+        @page { size: portrait; margin: 1cm; }
+    }
+
+    @media (max-width: 900px) {
+        .content-grid { grid-template-columns: 1fr; }
+        .side-panel { border-left: none; border-top: 1px solid #EDF2F7; }
     }
 </style>
 
-<div class="page-wrapper">
-    <div class="detail-header-section">
-        <a href="{% url 'user_dashboard' %}" class="btn-back">
-            <i class="fas fa-arrow-left me-2"></i> Return to Dashboard
+<div class="page-container">
+    <div class="action-header">
+        <a href="javascript:history.back()" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Return to Overview
         </a>
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-4 mt-2">
-            <div>
-                <h1 class="fw-bold m-0" style="font-size: 2.2rem; letter-spacing: -1.5px;">{{ complaint.title }}</h1>
-                <p class="mb-0 mt-1 opacity-75 fw-medium">Reference ID: <span class="text-white">#{{ complaint.id }}</span></p>
-            </div>
-            <div class="status-pill-large 
-                {% if complaint.status == 'Pending' %}status-pending
-                {% elif complaint.status == 'In Progress' %}status-progress
-                {% else %}status-resolved{% endif %}">
-                <i class="fas fa-circle me-2" style="font-size: 7px;"></i> {{ complaint.status }}
-            </div>
-        </div>
+        <button onclick="window.print()" class="btn-print">
+            <i class="fas fa-print"></i> Print Official Case File
+        </button>
     </div>
 
-    <div class="ticket-card">
-        <div class="main-info">
-            <span class="section-title">Case Description</span>
-            <div class="complaint-text">
-                {{ complaint.description }}
-            </div>
-            
-            <div style="margin-top: 60px;">
-                <span class="section-title">Timeline & Activity</span>
-                <div class="timeline-item">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="fw-bold text-dark small">Ticket Successfully Logged</span>
-                        <span class="text-muted" style="font-size: 11px;">{{ complaint.created_at|date:"M d, Y | H:i" }}</span>
-                    </div>
-                    <p class="text-muted small mb-0">The case has been submitted to <b>{{ complaint.user.organization.name }}</b> and is awaiting review by staff.</p>
+    <div class="glass-card">
+        <div class="card-banner">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <div class="status-chip">Ref #{{ complaint.id }}</div>
+                    <h1 style="font-size: 2.8rem; font-weight: 800; margin-top: 20px; letter-spacing: -1.5px;">{{ complaint.title }}</h1>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 1.2rem; font-weight: 800;">{{ complaint.status|upper }}</div>
+                    <div style="opacity: 0.7; font-size: 0.8rem; font-weight: 600;">Last Modified: {{ complaint.updated_at|date:"M d, Y" }}</div>
                 </div>
             </div>
         </div>
 
-        <div class="meta-sidebar">
-            <div class="meta-item">
-                <div class="meta-label">Submitted By</div>
-                <div class="meta-value">{{ complaint.user.username|title }}</div>
-            </div>
-
-            <div class="meta-item">
-                <div class="meta-label">Organization</div>
-                <div class="meta-value">{{ complaint.user.organization.name }}</div>
-            </div>
-
-            <div class="meta-item">
-                <div class="meta-label">Priority</div>
-                <div class="meta-value">
-                    {% if complaint.priority == 'High' %}
-                        <span class="text-danger fw-bold"><i class="fas fa-bolt me-1"></i> High Priority</span>
-                    {% else %}
-                        <span class="text-dark">{{ complaint.priority|default:"Normal" }}</span>
-                    {% endif %}
+        <div class="content-grid">
+            <div class="main-panel">
+                <span class="label-caps">Detailed Complaint Record</span>
+                <div class="description-text">
+                    {{ complaint.description }}
                 </div>
-            </div>
 
-            <div class="meta-item">
-                <div class="meta-label">Official Timestamp</div>
-                <div class="meta-value">{{ complaint.created_at|date:"D, M d, Y" }}</div>
+                <span class="label-caps">Attached File</span>
+{% if complaint.file %}
+    <a href="{{ complaint.file.url }}" target="_blank" class="file-card">
+        <div class="icon-box">
+            {% if ".pdf" in complaint.file.name %}
+                <i class="fas fa-file-pdf"></i>
+            {% else %}
+                <i class="fas fa-file-image"></i>
+            {% endif %}
+        </div>
+        <div style="flex: 1; overflow: hidden;">
+            <div style="font-weight: 800; font-size: 1.1rem; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                {# This removes both the folder name AND any leading slashes #}
+                {{ complaint.file.name|cut:"complaints/"|cut:"/" }}
             </div>
+            <div style="font-size: 0.85rem; color: var(--grey); font-weight: 600;">
+                Click to open official attachment
+            </div>
+        </div>
+        <div style="background: var(--primary); color: white; padding: 8px 15px; border-radius: 10px; font-size: 0.8rem; font-weight: 700;">
+            VIEW
+        </div>
+    </a>
+{% else %}
+    <div style="padding: 30px; border: 2px dashed #E9EDF7; border-radius: 24px; text-align: center; color: var(--grey);">
+        <i class="fas fa-info-circle mb-2"></i>
+        <p class="mb-0 fw-bold">No external files were attached to this record.</p>
+    </div>
+{% endif %}
+            </div>
+            
+            <div class="side-panel">
+                <div class="meta-group">
+                    <span class="meta-title">Submitted By</span>
+                    <span class="meta-value">
+                        <div style="width: 24px; height: 24px; background: var(--primary); color: white; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;">
+                            {{ complaint.user.username|slice:":1"|upper }}
+                        </div>
+                        {{ complaint.user.username|title }}
+                    </span>
+                </div>
 
-            <div class="mt-5">
-                <button onclick="window.print()" class="btn btn-dark w-100 rounded-pill py-2 shadow-sm fw-bold border-0" style="background: #1e293b;">
-                    <i class="fas fa-print me-2"></i> Print Case PDF
-                </button>
-                <p class="text-center text-muted tiny mt-3" style="font-size: 10px;">Generated by CMS Support Portal</p>
+                <div class="meta-group">
+                    <span class="meta-title">Jurisdiction</span>
+                    <span class="meta-value"><i class="fas fa-building opacity-30"></i> {{ complaint.user.organization.name }}</span>
+                </div>
+
+                <div class="meta-group">
+                    <span class="meta-title">Priority Rank</span>
+                    <span class="meta-value">
+                        {% if complaint.priority == 'High' %}
+                            <span style="color: #EE5D50;"><i class="fas fa-bolt"></i> HIGH PRIORITY</span>
+                        {% else %}
+                            <span style="color: var(--primary);">{{ complaint.priority|default:"NORMAL"|upper }}</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="meta-group">
+                    <span class="meta-title">Handling Officer</span>
+                    <span class="meta-value"><i class="fas fa-user-shield opacity-30"></i> {{ complaint.staff.username|default:"Awaiting Assignment" }}</span>
+                </div>
+
+                <div class="meta-group">
+                    <span class="meta-title">Date Logged</span>
+                    <span class="meta-value"><i class="far fa-calendar-check opacity-30"></i> {{ complaint.created_at|date:"D, M d, Y" }}</span>
+                </div>
+
+                <div style="margin-top: 60px; text-align: center;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ request.build_absolute_uri }}" style="width: 80px; opacity: 0.2;">
+                    <p style="font-size: 10px; color: var(--grey); margin-top: 10px; font-weight: 700;">DIGITAL AUDIT QR</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}

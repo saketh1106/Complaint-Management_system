@@ -77,6 +77,9 @@ def superadmin_register(request):
     """
     Creates the SuperAdmin and Organization, then redirects to Staff Login.
     """
+    storage = get_messages(request)
+    for _ in storage:
+        pass
     # 1. If already logged in, send them away from registration
     if request.user.is_authenticated:
         if request.user.is_superuser:
@@ -127,12 +130,17 @@ def superadmin_register(request):
 # ======================================
 # ORGANIZATION-FIRST LOGIN
 # ======================================
+from django.contrib import messages
+from django.contrib.messages import get_messages
 def org_login(request, user_type='user'):
     """
     Priority 1: Organization Scope
     Priority 2: User Validation
     Priority 3: Strict Role-Based Routing
     """
+    storage = get_messages(request)
+    for _ in storage:
+        pass
     # 1. Redirect already logged-in users based on strict hierarchy
     if request.user.is_authenticated:
         if request.user.is_superuser:
@@ -310,15 +318,26 @@ def create_complaint(request):
         description = request.POST.get("description")
         priority = request.POST.get("priority")
         file = request.FILES.get('file')
+
         if title and description:
-            Complaint.objects.create(
+            complaint = Complaint.objects.create(
                 title=title,
                 description=description,
                 priority=priority,
                 user=request.user,
                 organization=request.user.organization,
-                file=file    # 🔥 VERY IMPORTANT
+                file=file
             )
+
+            # 🔥 AUTO SEND FILE TO CHAT
+            if file:
+                Message.objects.create(
+                    complaint=complaint,
+                    sender=request.user,
+                    content=f"📎 {file.name}",
+                    file=file
+                )
+
             messages.success(request, "Complaint submitted successfully!")
             return redirect("user_dashboard")
 
@@ -613,7 +632,9 @@ def update_status(request, complaint_id=None): # Added =None
 # ======================================
 @login_required
 def user_profile(request):
-
+    storage = get_messages(request)
+    for _ in storage:
+        pass
     if request.user.is_superuser:
         return redirect("admin_dashboard")
 
@@ -732,16 +753,29 @@ def reports(request):
 # ======================================
 # ADMIN CHAT
 # ======================================
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.urls import reverse
+from django.contrib import messages
+from django.db.models import Count, Q, Max
+from .models import Complaint, Message
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def admin_chat(request):
     """
-    Admin chat interface for communicating with users via complaints
+    Admin chat interface for communicating with users via complaints.
+    Sorting logic: Unread counts first, then by the most recent message.
     """
-
+    # Base query filtered by the admin's organization
     complaints = Complaint.objects.filter(
         organization=request.user.organization
-    ).order_by('-created_at')
+    ).annotate(
+        # Annotate with the number of unseen messages from the user
+        unseen_count=Count('messages', filter=Q(messages__is_read=False) & ~Q(messages__sender=request.user)),
+        # Annotate with the time of the latest message for sorting
+        last_msg_time=Max('messages__timestamp')
+    ).order_by('-unseen_count', '-last_msg_time', '-created_at')
 
     complaint_id = request.GET.get('complaint_id')
     active_complaint = None
@@ -756,13 +790,11 @@ def admin_chat(request):
 
         messages_list = active_complaint.messages.all().order_by('timestamp')
 
-        # Mark unread messages as read
+        # Mark unseen messages as read when the admin views the conversation
         messages_list.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
 
-        # 🔥 HANDLE MESSAGE SEND
         if request.method == "POST":
-
-            # 🚫 BLOCK IF CHAT CLOSED
+            # Security check to see if chat is still active
             if not active_complaint.is_chat_active:
                 messages.error(request, "Chat is closed (Complaint Resolved)")
                 return redirect(f"{reverse('admin_chat')}?complaint_id={active_complaint.id}")
@@ -791,21 +823,26 @@ def admin_chat(request):
 # ======================================
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.urls import reverse
+from django.db.models import Count, Q, Max  # Added for sorting and counting
 from .models import Complaint, Message
-
 
 @login_required
 @user_passes_test(lambda u: u.is_staff and not u.is_superuser)
 def staff_chat_list(request):
-    # ✅ All assigned complaints
+    # ✅ Get all assigned complaints, annotate with unseen count, and sort
+    # 1. 'unseen_count': counts messages where is_read=False and sender is NOT the staff
+    # 2. 'last_msg_time': the time of the latest message
+    # 3. Sort by unseen_count (most unread first) and then by time
     assigned_complaints = Complaint.objects.filter(
         staff=request.user,
         organization=request.user.organization
-    )
+    ).annotate(
+        unseen_count=Count('messages', filter=Q(messages__is_read=False) & ~Q(messages__sender=request.user)),
+        last_msg_time=Max('messages__timestamp')
+    ).order_by('-unseen_count', '-last_msg_time')
 
-    # ✅ Get selected complaint from URL
     complaint_id = request.GET.get("complaint_id")
-
     selected_complaint = None
     messages = None
 
@@ -822,6 +859,9 @@ def staff_chat_list(request):
             complaint=selected_complaint
         ).order_by("timestamp")
 
+        # ✅ Mark all messages in THIS chat as READ when staff opens it
+        messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
+
         # ✅ Handle sending message
         if request.method == "POST" and selected_complaint.is_chat_active:
             content = request.POST.get("message")
@@ -831,7 +871,8 @@ def staff_chat_list(request):
                     complaint=selected_complaint,
                     sender=request.user,
                     content=content,
-                    file=uploaded_file
+                    file=uploaded_file,
+                    is_read=False # New messages start as unread
                 )
 
             return redirect(f"{reverse('staff_chat_list')}?complaint_id={complaint_id}")
@@ -846,16 +887,25 @@ def staff_chat_list(request):
 # USER CHAT LIST
 # ======================================
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db.models import Count, Q, Max
+from .models import Complaint, Message
+
 @login_required
 def user_chat_list(request):
+    # ✅ Added sorting: Unread (from Staff/Admin) first, then by latest message
     complaints = Complaint.objects.filter(
         user=request.user,
         organization=request.user.organization
-    )
+    ).annotate(
+        unseen_count=Count('messages', filter=Q(messages__is_read=False) & ~Q(messages__sender=request.user)),
+        last_msg_time=Max('messages__timestamp')
+    ).order_by('-unseen_count', '-last_msg_time', '-created_at')
 
     selected_complaint = None
     messages_list = []
-
     complaint_id = request.GET.get("complaint_id")
 
     if complaint_id:
@@ -868,10 +918,10 @@ def user_chat_list(request):
 
         messages_list = selected_complaint.messages.all().order_by("timestamp")
 
-        # 🔥 SEND MESSAGE
-        if request.method == "POST":
+        # ✅ Mark as read when user opens the chat
+        messages_list.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
 
-            # 🚫 BLOCK IF RESOLVED
+        if request.method == "POST":
             if not selected_complaint.is_chat_active:
                 messages.error(request, "Chat is closed (Complaint Resolved)")
                 return redirect(f"/user-chat/?complaint_id={complaint_id}")
@@ -884,7 +934,8 @@ def user_chat_list(request):
                     complaint=selected_complaint,
                     sender=request.user,
                     file=uploaded_file,
-                    content=content
+                    content=content,
+                    is_read=False # Unread for the staff/admin
                 )
 
             return redirect(f"/user-chat/?complaint_id={complaint_id}")
@@ -973,6 +1024,9 @@ def complaint_detail(request, complaint_id):
     if request.method == "POST":
         content = request.POST.get("message")
         uploaded_file = request.FILES.get("file")
+        if uploaded_file:
+            complaint.file = uploaded_file  # attach the file directly to the complaint
+        complaint.save()
         if content or uploaded_file:
             Message.objects.create(complaint=complaint, sender=request.user, content=content,file=uploaded_file)
             return redirect("complaint_detail", complaint_id=complaint.id)

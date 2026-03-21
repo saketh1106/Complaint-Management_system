@@ -11,6 +11,7 @@
         --grey: #A3AED0;
         --bg: #F4F7FE;
         --brand: #4318FF;
+        --success-green: #05CD99; /* New color for success feedback */
     }
 
     body { 
@@ -130,7 +131,7 @@
         box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
     }
 
-    /* --- CLEAN FILE ICON --- */
+    /* --- IMPROVED FILE BOX --- */
     .file-drop {
         border: 2px dashed #CBD5E0;
         border-radius: 20px;
@@ -143,16 +144,28 @@
         align-items: center;
         justify-content: center;
         gap: 12px;
-        height: 58px; /* Matching the height of the priority box */
+        height: 58px;
+        overflow: hidden; /* Prevent long names from breaking layout */
     }
 
-    .file-drop:hover {
-        border-color: var(--navy);
-        background: #F8FAFC;
+    .file-drop.file-selected {
+        border: 2px solid var(--success-green);
+        background: #F0FFF4;
     }
+
+    .file-drop.file-selected i { color: var(--success-green); }
+    .file-drop.file-selected span { color: var(--success-green); font-weight: 800; }
 
     .file-drop i { font-size: 1.2rem; color: var(--navy); }
-    .file-drop span { font-weight: 700; font-size: 0.9rem; color: var(--navy); }
+    .file-drop span { 
+        font-weight: 700; 
+        font-size: 0.85rem; 
+        color: var(--navy); 
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 180px;
+    }
 
     /* --- ACTION BUTTON --- */
     .submit-complaint-btn {
@@ -231,9 +244,9 @@
 
                 <div>
                     <label class="input-label">Evidence / Files</label>
-                    <label class="file-drop">
-                        <input type="file" name="file" style="display: none;" onchange="document.getElementById('file-name').innerText = 'File selected'">
-                        <i class="fa-solid fa-file-circle-plus"></i>
+                    <label class="file-drop" id="file-drop-area">
+                        <input type="file" name="file" id="file-input" style="display: none;">
+                        <i id="file-icon" class="fa-solid fa-file-circle-plus"></i>
                         <span id="file-name">Attach Proof</span>
                     </label>
                 </div>
@@ -247,5 +260,25 @@
         </form>
     </div>
 </div>
+
+<script>
+    // Visual Feedback for File Upload
+    document.getElementById('file-input').addEventListener('change', function() {
+        const fileName = this.files[0] ? this.files[0].name : "Attach Proof";
+        const label = document.getElementById('file-name');
+        const area = document.getElementById('file-drop-area');
+        const icon = document.getElementById('file-icon');
+
+        if (this.files[0]) {
+            label.innerText = fileName; // Show real filename
+            area.classList.add('file-selected'); // Turn box green
+            icon.className = "fa-solid fa-circle-check"; // Change icon to checkmark
+        } else {
+            label.innerText = "Attach Proof";
+            area.classList.remove('file-selected');
+            icon.className = "fa-solid fa-file-circle-plus";
+        }
+    });
+</script>
 
 {% endblock %}

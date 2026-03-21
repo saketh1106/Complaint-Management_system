@@ -12,213 +12,320 @@
         --bg-subtle: #F4F7FE;
         --text-dark: #1B2559;
         --text-grey: #A3AED0;
+        --unread-bg: #f0f4ff;
+        --success: #01B574;
     }
 
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-subtle); }
-
-    .chat-layout {
+    .admin-chat-container {
         display: flex;
-        gap: 24px;
-        height: calc(100vh - 160px);
-        min-height: 600px;
+        width: 100%;
+        height: 85vh;
+        background: #fff;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 40px 80px rgba(0,0,0,0.06);
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    /* --- LEFT SIDEBAR (Cleaned Up) --- */
+    /* --- SIDEBAR --- */
     .chat-sidebar {
-        flex: 1;
-        background: white;
-        border-radius: 24px;
+        width: 380px;
+        border-right: 1px solid #edf2f7;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        background: #fff;
     }
 
-    .sidebar-header { padding: 25px 20px; border-bottom: 1px solid #F1F4F9; }
-    .sidebar-header h4 { margin: 0; font-weight: 800; color: var(--text-dark); letter-spacing: -0.5px; }
+    .sidebar-header { padding: 25px; border-bottom: 1px solid #f8fafc; }
+    .sidebar-header h4 { margin-bottom: 15px; font-weight: 800; color: var(--text-dark); }
+
+    .sidebar-search {
+        background: var(--bg-subtle);
+        border-radius: 12px;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .sidebar-search i { color: var(--text-grey); }
+    .sidebar-search input {
+        border: none;
+        background: transparent;
+        outline: none;
+        width: 100%;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
 
     .complaint-list { flex: 1; overflow-y: auto; list-style: none; padding: 0; margin: 0; }
     
-    .complaint-item a {
-        display: flex;
-        flex-direction: column;
-        padding: 18px 20px;
-        text-decoration: none;
-        color: var(--text-dark);
-        border-bottom: 1px solid #F1F4F9;
-        transition: 0.2s;
+    .chat-card {
+        padding: 20px 25px; display: flex; align-items: center; gap: 15px;
+        text-decoration: none; border-bottom: 1px solid #f8fafc; transition: 0.2s;
+        position: relative;
+    }
+    .chat-card:hover { background: #f8fafc; }
+    .chat-card.active { background: #F4F7FE; border-right: 4px solid var(--primary); }
+    .chat-card.has-unread { background-color: var(--unread-bg); }
+
+    .user-avatar {
+        width: 50px; height: 50px; background: #E9EDF7; border-radius: 15px;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; color: var(--primary); flex-shrink: 0;
     }
 
-    .complaint-item a:hover { background: #F8FAFC; }
-    .complaint-item.active a { background: #EEF2FF; border-left: 4px solid var(--primary); }
-    
-    .complaint-id { font-size: 0.7rem; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 4px; }
-    .complaint-title-text { font-weight: 700; font-size: 0.9rem; color: var(--text-dark); }
-
-    /* --- RIGHT CHAT AREA --- */
-    .chat-window {
-        flex: 2.5;
-        background: white;
-        border-radius: 24px;
-        display: flex;
-        flex-direction: column;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    .unread-dot {
+        width: 10px; height: 10px; background-color: var(--primary);
+        border-radius: 50%; box-shadow: 0 0 8px rgba(67, 24, 255, 0.6);
     }
 
+    /* --- MAIN CHAT AREA --- */
+    .chat-main-view { flex: 1; display: flex; flex-direction: column; background: #F4F7FE; }
     .chat-header {
-        padding: 20px 25px;
-        border-bottom: 1px solid #F1F4F9;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        padding: 20px 40px; background: rgba(255,255,255,0.9);
+        backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.05);
+        display: flex; align-items: center; gap: 15px;
     }
-
     .messages-container {
-        flex: 1;
-        padding: 25px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        background: #fafbff;
+        flex: 1; padding: 30px 40px; overflow-y: auto; display: flex;
+        flex-direction: column; gap: 15px;
+        background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+        background-blend-mode: overlay;
     }
 
-    .msg-wrapper { max-width: 75%; margin-bottom: 5px; }
-    .msg-admin { align-self: flex-end; }
-    .msg-other { align-self: flex-start; }
-
-    .bubble { 
-        padding: 12px 18px; 
-        font-size: 0.95rem; 
-        line-height: 1.5; 
-        border-radius: 18px;
+    .bubble {
+        max-width: 65%; padding: 12px 18px; font-size: 0.95rem; position: relative;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03); border-radius: 18px;
     }
+    .msg-admin { align-self: flex-end; background: var(--primary); color: #fff; border-bottom-right-radius: 4px; }
+    .msg-other { align-self: flex-start; background: #fff; color: var(--text-dark); border-bottom-left-radius: 4px; }
+    .msg-meta { font-size: 0.65rem; opacity: 0.7; display: block; text-align: right; margin-top: 5px; }
 
-    .msg-admin .bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
-    .msg-other .bubble { background: white; color: var(--text-dark); border-bottom-left-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-
-    .msg-meta { font-size: 0.7rem; color: var(--text-grey); margin-top: 5px; font-weight: 600; display: block; }
-
-    /* Footer / Input */
-    .chat-footer { padding: 20px; border-top: 1px solid #F1F4F9; }
-    .input-box {
-        display: flex;
-        background: #F4F7FE;
-        padding: 10px 15px;
-        border-radius: 16px;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .input-box input { flex: 1; border: none; background: transparent; outline: none; font-weight: 600; }
-
-    .btn-send {
-        background: var(--primary);
+    /* FOOTER & FILE PREVIEW */
+    .chat-footer { padding: 25px 40px; background: #fff; border-top: 1px solid #edf2f7; position: relative; }
+    
+    .file-preview-badge {
+        display: none;
+        position: absolute;
+        top: -45px;
+        left: 40px;
+        background: var(--success);
         color: white;
-        width: 40px;
-        height: 40px;
-        border-radius: 12px;
-        display: flex;
+        padding: 6px 15px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
         align-items: center;
-        justify-content: center;
-        border: none;
-        cursor: pointer;
+        gap: 10px;
+        box-shadow: 0 5px 15px rgba(1, 181, 116, 0.2);
+        animation: slideUp 0.3s ease;
     }
 
-    .locked-banner {
-        background: #FEE2E2;
-        color: #B91C1C;
-        text-align: center;
-        padding: 12px;
-        border-radius: 14px;
-        font-weight: 700;
-        font-size: 0.85rem;
+    @keyframes slideUp {
+        from { transform: translateY(10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
     }
+
+    .input-pill {
+        display: flex; background: #F4F7FE; border-radius: 20px; 
+        padding: 5px 25px; align-items: center; gap: 15px; flex: 1;
+        min-height: 60px;
+    }
+    .input-pill input { 
+        flex: 1; border: none; background: transparent; outline: none; 
+        font-weight: 600; font-size: 1rem; color: var(--text-dark);
+    }
+    
+    .btn-send {
+        background: var(--primary); color: #fff; border: none;
+        width: 60px; height: 60px; border-radius: 20px;
+        display: flex; align-items: center; justify-content: center; 
+        transition: 0.3s; cursor: pointer; font-size: 1.2rem;
+    }
+    .btn-send:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(67, 24, 255, 0.3); }
+
+    #file-label.file-selected { color: var(--success); }
 </style>
 
-<div class="chat-layout">
+<div class="admin-chat-container">
     <div class="chat-sidebar">
         <div class="sidebar-header">
             <h4>Discussions</h4>
+            <div class="sidebar-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="chatSearch" placeholder="Search conversations..." onkeyup="filterChats()">
+            </div>
         </div>
-        <ul class="complaint-list">
+        <div class="complaint-list" id="complaintList">
             {% for complaint in complaints %}
-            <li class="complaint-item {% if active_complaint.id == complaint.id %}active{% endif %}">
-                <a href="?complaint_id={{ complaint.id }}">
-                    <span class="complaint-id">Complaint #{{ complaint.id }}</span>
-                    <span class="complaint-title-text">{{ complaint.title|truncatechars:25 }}</span>
+                <a href="?complaint_id={{ complaint.id }}" 
+                   class="chat-card {% if active_complaint.id == complaint.id %}active{% endif %} {% if complaint.unseen_count > 0 %}has-unread{% endif %}">
+                    
+                    <div class="user-avatar">
+                        {{ complaint.user.username|slice:":1"|upper }}
+                    </div>
+
+                    <div style="flex: 1;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="user-name" style="font-weight: 700; color: var(--text-dark);">{{ complaint.user.username }}</span>
+                            {% if complaint.unseen_count > 0 %}
+                                <div class="unread-dot"></div>
+                            {% endif %}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-grey); font-weight: 600;">
+                            #{{ complaint.id }} • <span class="complaint-title">{{ complaint.title|truncatechars:15 }}</span>
+                            {% if complaint.unseen_count > 0 %}
+                                <b style="color: var(--primary); margin-left: 5px;">({{ complaint.unseen_count }})</b>
+                            {% endif %}
+                        </div>
+                    </div>
                 </a>
-            </li>
             {% empty %}
-            <li style="padding: 30px; text-align: center; color: var(--text-grey);">No active tickets.</li>
+                <p style="padding:25px; text-align:center; color: var(--text-grey);">No active tickets.</p>
             {% endfor %}
-        </ul>
+        </div>
     </div>
 
-    <div class="chat-window">
+    <div class="chat-main-view">
         {% if active_complaint %}
             <div class="chat-header">
-                <div>
-                    <h4 style="margin:0; color: var(--text-dark); font-weight: 800;">{{ active_complaint.title }}</h4>
-                    <small style="color: var(--text-grey); font-weight: 600;">Chat started by {{ active_complaint.user.username }}</small>
+                <div class="user-avatar" style="width: 40px; height: 40px; font-size: 0.9rem;">
+                    {{ active_complaint.user.username|slice:":1"|upper }}
                 </div>
-                {% if not active_complaint.is_chat_active %}
-                    <span style="background: #F1F4F9; color: var(--text-grey); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800;">RESOLVED</span>
-                {% endif %}
+                <div>
+                    <h6 class="fw-bold m-0" style="color: var(--text-dark);">{{ active_complaint.title }} (#{{ active_complaint.id }})</h6>
+                    <small class="text-muted">User: {{ active_complaint.user.username }}</small>
+                </div>
             </div>
 
-            <div class="messages-container">
+            <div class="messages-container" id="adminMessagePane">
                 {% for msg in messages %}
-                <div class="msg-wrapper {% if msg.sender == request.user %}msg-admin{% else %}msg-other{% endif %}">
-                    <div class="bubble">
+                    <div class="bubble {% if msg.sender == request.user %}msg-admin{% else %}msg-other{% endif %}">
+                        <span style="font-size: 0.7rem; font-weight: 700; display: block; margin-bottom: 4px;">
+                            {{ msg.sender.username }}
+                        </span>
+                        
                         {{ msg.content }}
+
                         {% if msg.file %}
-                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.05);">
-                                <a href="{{ msg.file.url }}" target="_blank" style="color: inherit; text-decoration: none; font-size: 0.8rem; font-weight: 700;">
-                                    <i class="fas fa-paperclip"></i> View Attachment
+                            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.05);">
+                                <a href="{{ msg.file.url }}" target="_blank" download style="color: inherit; font-size: 0.8rem; text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-paperclip"></i> {{ msg.file.name|slice:"11:" }} 
                                 </a>
                             </div>
                         {% endif %}
+
+                        <span class="msg-meta">{{ msg.timestamp|date:"g:i A" }}</span>
                     </div>
-                    <span class="msg-meta">
-                        {{ msg.sender.username }} • {{ msg.timestamp|date:"g:i A" }}
-                    </span>
-                </div>
                 {% endfor %}
             </div>
 
             <div class="chat-footer">
+                <div class="file-preview-badge" id="filePreview">
+                    <i class="fas fa-file-alt"></i>
+                    <span id="fileNameDisplay">filename.jpg</span>
+                    <i class="fas fa-times" style="cursor:pointer; margin-left: 5px;" onclick="clearFile()"></i>
+                </div>
+
                 {% if active_complaint.is_chat_active %}
-                    <form method="POST" enctype="multipart/form-data">
+                    <form method="POST" enctype="multipart/form-data" id="chatForm" style="display: flex; gap: 20px; align-items: center;">
                         {% csrf_token %}
-                        <div class="input-box">
-                            <label style="margin:0; cursor:pointer; color: var(--text-grey);">
-                                <i class="fas fa-plus-circle"></i>
-                                <input type="file" name="file" style="display:none;">
+                        <div class="input-pill">
+                            <input type="text" name="message" id="messageInput" placeholder="Type your response..." autocomplete="off">
+                            
+                            <input type="file" name="file" id="admin-file" style="display:none;" onchange="handleFileSelect(this)">
+                            <label for="admin-file" id="file-label" style="cursor:pointer; color: var(--text-grey); margin:0; font-size: 1.4rem; transition: 0.3s;">
+                                <i class="fas fa-plus-circle" id="file-icon"></i>
                             </label>
-                            <input type="text" name="message" placeholder="Type your reply here..." required>
-                            <button type="submit" class="btn-send">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
                         </div>
+                        <button type="submit" class="btn-send">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
                     </form>
                 {% else %}
-                    <div class="locked-banner">
-                        <i class="fas fa-info-circle me-2"></i> This Complaint is resolved. </div>
+                    <div style="background: #FEE2E2; color: #B91C1C; text-align: center; padding: 15px; border-radius: 20px; font-weight: 700;">
+                        🔒 This Complaint is resolved. Chat is disabled.
+                    </div>
                 {% endif %}
             </div>
         {% else %}
-            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color: var(--text-grey);">
-                <i class="far fa-comments fa-4x mb-3" style="opacity:0.2;"></i>
-                <p style="font-weight: 600;">Select a conversation to start messaging</p>
+            <div style="margin: auto; text-align: center;">
+                <i class="far fa-comments fa-4x mb-3" style="color: var(--text-grey); opacity: 0.2;"></i>
+                <h4 style="font-weight: 800; color: var(--text-dark);">Select a Discussion</h4>
+                <p style="color: var(--text-grey);">Choose a user chat to start messaging.</p>
             </div>
         {% endif %}
     </div>
 </div>
 
 <script>
-    const msgDiv = document.querySelector('.messages-container');
-    if (msgDiv) msgDiv.scrollTop = msgDiv.scrollHeight;
+    // Auto-scroll to bottom
+    const pane = document.getElementById('adminMessagePane');
+    if (pane) pane.scrollTop = pane.scrollHeight;
+
+    // Handle File Selection Visualization
+    function handleFileSelect(input) {
+        const preview = document.getElementById('filePreview');
+        const fileNameDisp = document.getElementById('fileNameDisplay');
+        const fileIcon = document.getElementById('file-icon');
+        const fileLabel = document.getElementById('file-label');
+        const msgInput = document.getElementById('messageInput');
+
+        if (input.files && input.files[0]) {
+            const name = input.files[0].name;
+            fileNameDisp.innerText = name.length > 20 ? name.substring(0, 17) + "..." : name;
+            
+            // Show Badge
+            preview.style.display = 'flex';
+            
+            // Change Icon to Green Check
+            fileIcon.classList.remove('fa-plus-circle');
+            fileIcon.classList.add('fa-check-circle');
+            fileLabel.classList.add('file-selected');
+
+            // Make message optional if file is present
+            msgInput.removeAttribute('required');
+        }
+    }
+
+    function clearFile() {
+        const input = document.getElementById('admin-file');
+        const preview = document.getElementById('filePreview');
+        const fileIcon = document.getElementById('file-icon');
+        const fileLabel = document.getElementById('file-label');
+        const msgInput = document.getElementById('messageInput');
+
+        input.value = ""; // Reset input
+        preview.style.display = 'none'; // Hide badge
+        
+        // Reset Icon
+        fileIcon.classList.add('fa-plus-circle');
+        fileIcon.classList.remove('fa-check-circle');
+        fileLabel.classList.remove('file-selected');
+
+        // Restore required if message is empty
+        if(msgInput.value.trim() === "") {
+            msgInput.setAttribute('required', 'true');
+        }
+    }
+
+    // Search Filtering Function
+    function filterChats() {
+        let input = document.getElementById('chatSearch').value.toLowerCase();
+        let cards = document.getElementsByClassName('chat-card');
+        
+        for (let i = 0; i < cards.length; i++) {
+            let name = cards[i].querySelector('.user-name').innerText.toLowerCase();
+            let title = cards[i].querySelector('.complaint-title').innerText.toLowerCase();
+            
+            if (name.includes(input) || title.includes(input)) {
+                cards[i].style.display = "flex";
+            } else {
+                cards[i].style.display = "none";
+            }
+        }
+    }
 </script>
 
 {% endblock %}
