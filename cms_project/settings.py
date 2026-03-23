@@ -68,15 +68,25 @@ WSGI_APPLICATION = 'cms_project.wsgi.application'
 # ===============================
 # DATABASE
 # ===============================
-import dj_database_url
+import os
 
-DATABASES = {
-    'default': dj_database_url.parse(
-        "postgresql://cms_db_c39r_user:RiNPPoAgwIcSAy7UmxLg56xqZYdbkJXD@dpg-d70jtmkr85hc73ajd07g-a.singapore-postgres.render.com/cms_db_c39r",
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
+if os.environ.get("postgresql://cms_db_c39r_user:RiNPPoAgwIcSAy7UmxLg56xqZYdbkJXD@dpg-d70jtmkr85hc73ajd07g-a.singapore-postgres.render.com/cms_db_c39r"):
+    import dj_database_url
+
+    DATABASES = {
+        'default': dj_database_url.parse(
+            os.environ.get("postgresql://cms_db_c39r_user:RiNPPoAgwIcSAy7UmxLg56xqZYdbkJXD@dpg-d70jtmkr85hc73ajd07g-a.singapore-postgres.render.com/cms_db_c39r"),
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # ===============================
 # PASSWORD VALIDATION
