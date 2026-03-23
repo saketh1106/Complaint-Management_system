@@ -10,6 +10,8 @@ from django.utils.timezone import now
 from .forms import UserCreationForm
 from django.urls import reverse
 from django.utils import timezone
+from django.contrib import messages
+from django.contrib.messages import get_messages  # <--- Add this line
 # ======================================
 # LOGIN CHOICE PAGE
 # ======================================
@@ -17,6 +19,9 @@ def login_choice(request):
     """
     Login choice page: redirect authenticated users to appropriate dashboards
     """
+    storage = get_messages(request)
+    for _ in storage:
+        pass
     if request.user.is_authenticated:
         if request.user.is_superuser:
             return redirect("admin_dashboard")
@@ -31,6 +36,9 @@ def login_choice(request):
 # USER / STAFF REGISTRATION
 # ======================================
 def register(request):
+    storage = get_messages(request)
+    for _ in storage:
+        pass
     if request.user.is_authenticated:
         return redirect("login_choice")
 

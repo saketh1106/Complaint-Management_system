@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY
 # ===============================
 SECRET_KEY = 'django-insecure-j!yr%#jng*%@2=%c^91cxq1$-_b_ljn)z=2j9i0cgo(z*&vr4!'
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1','*']
 
 # ===============================
@@ -56,6 +56,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Custom context processor for unread chat
+                'complaints.context_processors.unread_messages_count',
             ],
         },
     },
@@ -66,11 +68,14 @@ WSGI_APPLICATION = 'cms_project.wsgi.application'
 # ===============================
 # DATABASE
 # ===============================
+import dj_database_url
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.parse(
+        "postgresql://cms_db_c39r_user:RiNPPoAgwIcSAy7UmxLg56xqZYdbkJXD@dpg-d70jtmkr85hc73ajd07g-a.singapore-postgres.render.com/cms_db_c39r",
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
 # ===============================

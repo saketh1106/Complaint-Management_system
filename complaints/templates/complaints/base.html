@@ -8,14 +8,37 @@
     <style>
         *{ margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
         body{ background:#F8FAFC; display:flex; min-height:100vh; }
+        
+        /* ====== Sidebar ====== */
         .sidebar{ width:240px; background:#EEF2FF; padding:25px; position:fixed; height:100%; border-right: 1px solid #E2E8F0; }
         .sidebar h2{ color:#4F46E5; margin-bottom:30px; font-size: 1.3rem; }
-        .sidebar a{ display:block; text-decoration:none; color:#374151; padding:12px; border-radius:8px; margin-bottom:8px; transition:0.3s; font-size: 0.9rem; }
+        .sidebar a{ display:block; text-decoration:none; color:#374151; padding:12px; border-radius:8px; margin-bottom:8px; transition:0.3s; font-size: 0.9rem; position: relative; }
         .sidebar a:hover{ background:#6366F1; color:white; }
+
+        /* ====== Notification Dot ====== */
+        .dot {
+            height: 10px;
+            width: 10px;
+            background-color: #EF4444;
+            border-radius: 50%;
+            display: inline-block;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 2px solid #EEF2FF;
+        }
+        .sidebar a:hover .dot {
+            border-color: #6366F1;
+        }
+
+        /* ====== Main Content ====== */
         .main{ margin-left:240px; width:100%; }
         .navbar{ background:white; padding:15px 25px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
         .navbar h3{ color:#1F2937; font-size: 1.1rem; }
         .content{ padding:30px; }
+
+        /* ====== Elements ====== */
         button{ padding:10px 16px; border:none; border-radius:8px; background:#6366F1; color:white; cursor:pointer; transition:0.3s; }
         button:hover{ background:#4F46E5; }
         input,select,textarea{ width:100%; padding:10px; margin-top:5px; margin-bottom:15px; border:1px solid #D1D5DB; border-radius:8px; }
@@ -30,7 +53,14 @@
         <a href="{% url 'user_dashboard' %}">Dashboard</a>
         <a href="{% url 'create_complaint' %}">Submit Complaint</a>
         <a href="{% url 'user_profile' %}">Profile</a>
-        <a href="{% url 'user_chat_list' %}">Chat</a>
+        
+        <a href="{% url 'user_chat_list' %}">
+            Chat
+            {% if unread_chats_count > 0 %}
+                <span class="dot"></span>
+            {% endif %}
+        </a>
+
         <hr style="margin: 20px 0; border: 0; border-top: 1px solid #E2E8F0;">
         <a href="{% url 'logout' %}" style="color: #EF4444;">Logout</a>
     </div>
@@ -39,7 +69,7 @@
         <div class="navbar">
             <h3>Complaint Management System</h3>
             <div style="font-size: 0.8rem; color: #64748b;">
-                {{ user.username }} | {{ user.organization.name }}
+                <strong>{{ user.username }}</strong> | {{ user.organization.name }}
             </div>
         </div>
         <div class="content">
